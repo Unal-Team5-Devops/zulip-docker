@@ -1,9 +1,12 @@
 # Orquesta Zulip y sus 4 dependencias. Con "docker compose up -d" se levanta todo.
 # Los comentarios van fuera de los bloques "command: |" porque dentro de ellos
 # formarían parte del script del contenedor.
+
 name: zulip-docker-pipeline
 services:
+
   # --- PostgreSQL: base de datos relacional. Guarda mensajes, usuarios y canales.
+
   database:
     image: zulip/zulip-postgresql:14  # imagen oficial de Zulip con las extensiones que necesita
     restart: unless-stopped  # se reinicia sola salvo que la detengas a mano
@@ -23,14 +26,17 @@ services:
       retries: 10
 
   # --- memcached: caché en memoria. Evita consultar la BD en cada petición.
+
   memcached:
     image: memcached:1.6-alpine
     restart: unless-stopped
     networks: [backend]
     secrets: [zulip__memcached_password]
+
     # Al arrancar: 1) configura SASL (autenticación por usuario y contraseña),
     # 2) crea el usuario "zulip" con la contraseña del secreto, 3) lanza memcached
     # con -S (SASL activo). "$$" evita que Compose sustituya la variable antes de tiempo.
+
     command:
       - sh
       - -euc
@@ -44,8 +50,10 @@ services:
       MEMCACHED_SASL_PWDB: /home/memcache/memcached-sasl-db
       MEMCACHED_PASSWORD_FILE: /run/secrets/zulip__memcached_password
     healthcheck:
+
       # Verificación débil: solo comprueba que el proceso exista, porque con SASL
       # el protocolo de texto está deshabilitado y no se puede hacer un "ping" real.
+
       test: ["CMD-SHELL", "pidof memcached"]
       interval: 10s
       timeout: 5s
@@ -53,12 +61,15 @@ services:
 
   # --- RabbitMQ: cola de mensajes. Zulip le delega tareas lentas (correos,
   # notificaciones push, indexado) para responder rápido al usuario.
+
   rabbitmq:
     image: rabbitmq:4.2
     restart: unless-stopped
     networks: [backend]
     secrets: [zulip__rabbitmq_password]
+
     # Inyecta la contraseña del secreto en la configuración antes de arrancar.
+
     command:
       - sh
       - -euc
@@ -81,6 +92,7 @@ services:
 
   # --- Redis: almacén clave-valor rápido. Zulip lo usa para límites de uso
   # (rate limiting) y datos temporales.
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -102,6 +114,7 @@ services:
       retries: 5
 
   # --- Zulip: la aplicación (nginx + Django + workers bajo supervisord).
+
   zulip:
     # Imagen publicada por el pipeline en GHCR. Si no existe, "build" la construye
     # desde el Dockerfile local (con "docker compose up --build").
@@ -158,6 +171,7 @@ networks:
 
 # Volúmenes con nombre: persisten aunque borres los contenedores. Solo
 # "docker compose down -v" los elimina. Llevan el prefijo del proyecto (name:).
+
 volumes:
   zulip:
   postgresql-14:
@@ -166,6 +180,7 @@ volumes:
 
 # Cada secreto toma su valor de una variable del .env (generada por
 # scripts/generate-env.sh) y se monta como archivo, no como variable visible.
+
 secrets:
   zulip__postgres_password: {environment: ZULIP__POSTGRES_PASSWORD}
   zulip__memcached_password: {environment: ZULIP__MEMCACHED_PASSWORD}
