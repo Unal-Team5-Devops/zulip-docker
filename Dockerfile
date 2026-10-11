@@ -25,7 +25,7 @@ ARG ZULIP_GIT_REF=12.3
 
 RUN echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
 
-USER zulip
+USER 1000
 WORKDIR /home/zulip
 
 RUN git clone --branch "$ZULIP_GIT_REF" --depth 1 "$ZULIP_GIT_URL" zulip
@@ -89,6 +89,6 @@ HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=300s \
 
 # Corre como root: el entrypoint necesita ajustar ulimit antes de bajar privilegios.
 # hadolint ignore=DL3002
-USER root
+USER 0
 ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["app:run"]
