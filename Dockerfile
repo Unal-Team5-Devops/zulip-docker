@@ -31,7 +31,6 @@ ENV LANG="C.UTF-8"
 # DL3008/DL3009: no se fijan versiones de apt ni se limpia la caché aquí porque
 # esta etapa es intermedia; la limpieza se hace en la etapa final.
 # hadolint ignore=DL3008,DL3009
-
 RUN apt-get -q update && \
     apt-get -q dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive \
@@ -170,7 +169,6 @@ HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=300s \
 
 # Corre como root: el entrypoint necesita ajustar ulimit antes de bajar privilegios.
 # hadolint ignore=DL3002
-
 USER 0
 
 # ENTRYPOINT = lo que siempre se ejecuta; CMD = argumento por defecto (app:run
