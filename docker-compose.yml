@@ -1,6 +1,4 @@
----
-name: zulip
-
+name: zulip-docker-pipeline
 services:
   database:
     image: zulip/zulip-postgresql:14
@@ -37,7 +35,6 @@ services:
       MEMCACHED_SASL_PWDB: /home/memcache/memcached-sasl-db
       MEMCACHED_PASSWORD_FILE: /run/secrets/zulip__memcached_password
     healthcheck:
-      # Con SASL el protocolo de texto está deshabilitado: solo se verifica el proceso.
       test: ["CMD-SHELL", "pidof memcached"]
       interval: 10s
       timeout: 5s
@@ -115,7 +112,6 @@ services:
       SETTING_REDIS_HOST: redis
       SETTING_EXTERNAL_HOST: ${ZULIP_EXTERNAL_HOST:?defina ZULIP_EXTERNAL_HOST en .env}
       SETTING_ZULIP_ADMINISTRATOR: ${ZULIP_ADMINISTRATOR:?defina ZULIP_ADMINISTRATOR en .env}
-      # Vacío = solo HTTP (detrás de un proxy). Otros: self-signed, certbot, manual.
       CERTIFICATES: ${ZULIP_CERTIFICATES:-self-signed}
     volumes:
       - zulip:/data
