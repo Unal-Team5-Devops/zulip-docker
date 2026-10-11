@@ -1,27 +1,42 @@
+# Orquesta Zulip y sus 4 dependencias. Con "docker compose up -d" se levanta todo.
+# Los comentarios van fuera de los bloques "command: |" porque dentro de ellos
+# formarían parte del script del contenedor.
+
 name: zulip-docker-pipeline
 services:
+
+  # --- PostgreSQL: base de datos relacional. Guarda mensajes, usuarios y canales.
+
   database:
-    image: zulip/zulip-postgresql:14
-    restart: unless-stopped
-    networks: [backend]
-    secrets: [zulip__postgres_password]
+    image: zulip/zulip-postgresql:14  # imagen oficial de Zulip con las extensiones que necesita
+    restart: unless-stopped  # se reinicia sola salvo que la detengas a mano
+    networks: [backend]  # solo en la red interna: nadie de fuera puede alcanzarla
+    secrets: [zulip__postgres_password]  # monta la contraseña como archivo en /run/secrets/
     environment:
       POSTGRES_DB: zulip
       POSTGRES_USER: zulip
+      # la contraseña se lee desde el archivo secreto, no queda en "docker inspect"
       POSTGRES_PASSWORD_FILE: /run/secrets/zulip__postgres_password
     volumes:
-      - postgresql-14:/var/lib/postgresql/data
-    healthcheck:
+      - postgresql-14:/var/lib/postgresql/data  # volumen con nombre: los datos sobreviven a "down"
+    healthcheck:  # Docker marca "healthy" solo cuando la BD acepta conexiones
       test: ["CMD-SHELL", "pg_isready -U zulip -d zulip"]
       interval: 10s
       timeout: 5s
       retries: 10
+
+  # --- memcached: caché en memoria. Evita consultar la BD en cada petición.
 
   memcached:
     image: memcached:1.6-alpine
     restart: unless-stopped
     networks: [backend]
     secrets: [zulip__memcached_password]
+
+    # Al arrancar: 1) configura SASL (autenticación por usuario y contraseña),
+    # 2) crea el usuario "zulip" con la contraseña del secreto, 3) lanza memcached
+    # con -S (SASL activo). "$$" evita que Compose sustituya la variable antes de tiempo.
+
     command:
       - sh
       - -euc
@@ -35,16 +50,26 @@ services:
       MEMCACHED_SASL_PWDB: /home/memcache/memcached-sasl-db
       MEMCACHED_PASSWORD_FILE: /run/secrets/zulip__memcached_password
     healthcheck:
+
+      # Verificación débil: solo comprueba que el proceso exista, porque con SASL
+      # el protocolo de texto está deshabilitado y no se puede hacer un "ping" real.
+
       test: ["CMD-SHELL", "pidof memcached"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # --- RabbitMQ: cola de mensajes. Zulip le delega tareas lentas (correos,
+  # notificaciones push, indexado) para responder rápido al usuario.
 
   rabbitmq:
     image: rabbitmq:4.2
     restart: unless-stopped
     networks: [backend]
     secrets: [zulip__rabbitmq_password]
+
+    # Inyecta la contraseña del secreto en la configuración antes de arrancar.
+
     command:
       - sh
       - -euc
@@ -57,19 +82,23 @@ services:
       RABBITMQ_DEFAULT_USER: zulip
       RABBITMQ_PASSWORD_FILE: /run/secrets/zulip__rabbitmq_password
     volumes:
-      - rabbitmq:/var/lib/rabbitmq
+      - rabbitmq:/var/lib/rabbitmq  # las colas persisten si se reinicia
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 15s
       timeout: 10s
       retries: 10
-      start_period: 30s
+      start_period: 30s  # RabbitMQ tarda en arrancar; ese tiempo no cuenta como fallo
+
+  # --- Redis: almacén clave-valor rápido. Zulip lo usa para límites de uso
+  # (rate limiting) y datos temporales.
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     networks: [backend]
     secrets: [zulip__redis_password]
+    # --requirepass exige contraseña para cualquier conexión.
     command:
       - sh
       - -euc
@@ -78,26 +107,36 @@ services:
       REDIS_PASSWORD_FILE: /run/secrets/zulip__redis_password
     volumes:
       - redis:/data
-    healthcheck:
+    healthcheck:  # hace un ping autenticado y espera la respuesta PONG
       test: ["CMD-SHELL", "redis-cli -a \"$$(cat $$REDIS_PASSWORD_FILE)\" --no-auth-warning ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # --- Zulip: la aplicación (nginx + Django + workers bajo supervisord).
+
   zulip:
+    # Imagen publicada por el pipeline en GHCR. Si no existe, "build" la construye
+    # desde el Dockerfile local (con "docker compose up --build").
     image: ghcr.io/unal-team5-devops/zulip-docker:latest
     build:
       context: .
     restart: unless-stopped
+    # Es el único servicio en las dos redes: recibe tráfico (frontend) y habla con
+    # las dependencias (backend).
     networks: [frontend, backend]
+    # No arranca hasta que las 4 dependencias estén "healthy" (no solo iniciadas).
     depends_on:
       database: {condition: service_healthy}
       memcached: {condition: service_healthy}
       rabbitmq: {condition: service_healthy}
       redis: {condition: service_healthy}
+    # Publica 80 y 443 solo en 127.0.0.1 por defecto: no queda expuesto a la red
+    # local sin querer. Para exponerlo, cambia ZULIP_BIND_ADDRESS en .env.
     ports:
       - "${ZULIP_BIND_ADDRESS:-127.0.0.1}:80:80"
       - "${ZULIP_BIND_ADDRESS:-127.0.0.1}:443:443"
+    # El entrypoint de Zulip lee estos archivos de /run/secrets/zulip__*
     secrets:
       - zulip__postgres_password
       - zulip__memcached_password
@@ -106,30 +145,41 @@ services:
       - zulip__secret_key
       - zulip__email_password
     environment:
+      # Los nombres de host son los nombres de servicio: Docker los resuelve por DNS
+      # dentro de la red backend.
       SETTING_REMOTE_POSTGRES_HOST: database
       SETTING_MEMCACHED_LOCATION: memcached:11211
       SETTING_RABBITMQ_HOST: rabbitmq
       SETTING_REDIS_HOST: redis
+      # Obligatorios: si faltan en .env, Compose falla con el mensaje indicado.
       SETTING_EXTERNAL_HOST: ${ZULIP_EXTERNAL_HOST:?defina ZULIP_EXTERNAL_HOST en .env}
       SETTING_ZULIP_ADMINISTRATOR: ${ZULIP_ADMINISTRATOR:?defina ZULIP_ADMINISTRATOR en .env}
+      # Modo de TLS: self-signed (por defecto), certbot, manual, o vacío = solo HTTP
+      # (para ir detrás de un proxy).
       CERTIFICATES: ${ZULIP_CERTIFICATES:-self-signed}
     volumes:
-      - zulip:/data
-    ulimits:
+      - zulip:/data  # archivos subidos, certificados y configuración
+    ulimits:  # Zulip mantiene muchas conexiones abiertas; el límite por defecto no alcanza
       nofile:
         soft: 1000000
         hard: 1048576
 
 networks:
-  frontend:
+  frontend:  # la que ve el usuario
   backend:
-    internal: true
+    internal: true  # sin salida a internet: BD, caché y colas quedan aisladas
+
+# Volúmenes con nombre: persisten aunque borres los contenedores. Solo
+# "docker compose down -v" los elimina. Llevan el prefijo del proyecto (name:).
 
 volumes:
   zulip:
   postgresql-14:
   rabbitmq:
   redis:
+
+# Cada secreto toma su valor de una variable del .env (generada por
+# scripts/generate-env.sh) y se monta como archivo, no como variable visible.
 
 secrets:
   zulip__postgres_password: {environment: ZULIP__POSTGRES_PASSWORD}
