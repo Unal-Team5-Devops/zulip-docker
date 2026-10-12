@@ -1,8 +1,17 @@
 # zulip-docker
 
-Empaquetado y CI de [Zulip](https://zulip.com) para la Entrega #1 de *Fundamentos de DevOps y SRE* (UNAL, 2026-02).
+Empaquetado y CI de [Zulip](https://zulip.com) para la primero entrega de *Fundamentos de DevOps y SRE* (UNAL, 2026-02).
 
-**Equipo:** _(nombres y usuarios de GitHub de los tres integrantes)_
+**Equipo:** 
+
+```
+Equipo 5
+
+JONATHAN DAVID MONCALEANO ANGEL
+ANDRÉS FELIPE LUGO RODRIGUEZ
+CAMILO ALFONSO MOSQUERA BENAVIDES
+```
+
 
 ## Arquitectura
 
@@ -18,13 +27,13 @@ Redes `frontend` y `backend` (esta última `internal`). Todos los servicios son 
 ## Uso local
 
 ```bash
-./scripts/generate-env.sh      # crea .env con secretos aleatorios
+./scripts/generate-env.sh      # crea .env con una serie de secretos aleatorios
 docker compose up -d --build   # primera vez: el build desde fuente tarda >20 min
 docker compose ps
 docker compose exec -u zulip zulip /home/zulip/deployments/current/manage.py generate_realm_creation_link
 ```
 
-Requiere ~2 GB de RAM para ejecutar y ~4 GB para construir.
+Requiere apróximadamente 2 GB de RAM para ejecutar y 4 GB para construir.
 
 ## Imagen
 
