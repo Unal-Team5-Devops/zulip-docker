@@ -1,0 +1,78 @@
+name: Terraform Docker validation
+
+# Ejecuta la validación cuando cambian archivos de Terraform o este workflow.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "terraform/*.tf"
+      - "terraform/**/*.tf"
+      - "terraform/.tflint.hcl"
+      - ".github/workflows/terraform-docker-validate.yml"
+  pull_request:
+    paths:
+      - "terraform/*.tf"
+      - "terraform/**/*.tf"
+      - "terraform/.tflint.hcl"
+      - ".github/workflows/terraform-docker-validate.yml"
+  workflow_dispatch:
+
+# Solo necesita permisos para leer el repositorio.
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    # Ejecuta los comandos desde la carpeta Terraform.
+    defaults:
+      run:
+        working-directory: terraform
+
+    # Descarga el código del repositorio.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Instala la versión definida de Terraform.
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+          terraform_wrapper: false
+
+      # Comprueba que los archivos Terraform tengan el formato correcto.
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive
+      # Si algún archivo necesita formato, el comando falla y el workflow se marca como fallido. Localmente se podría corregir con:
+      # terraform fmt -recursive
+      
+      # Descarga los proveedores sin conectarse al backend remoto.
+      - name: Initialize providers
+        run: terraform init -backend=false -input=false
+
+      # Valida la sintaxis y estructura de la configuración.
+      - name: Validate Terraform configuration
+        run: terraform validate
+
+      # Instala TFLint para revisar posibles errores y malas prácticas.
+      - name: Set up TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.55.0
+
+      # Descarga los plugins definidos en la configuración de TFLint.
+      - name: Initialize TFLint
+        run: tflint --init
+
+      # Ejecuta TFLint en la raíz y sus subdirectorios.
+      - name: Run TFLint
+        run: tflint --recursive
+
+      # Busca problemas de seguridad en la configuración Terraform.
+      - name: Static security analysis with Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: terraform
+          framework: terraform
+          quiet: true

@@ -155,6 +155,8 @@ docker logs --tail 200 zulip-app
 
 ```powershell
 .\scripts\verify.ps1
+o si no te deja ejecutar por permisos
+powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 ```
 
 El script muestra estados de contenedores, confirma que los puertos de las dependencias no estén publicados en el host, lista redes y volúmenes e intenta consultar HTTPS. Un contenedor en `running` no garantiza que Zulip haya terminado de inicializarse; revisa los logs y repite la prueba HTTP si aún no responde.
