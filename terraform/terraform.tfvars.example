@@ -1,0 +1,9 @@
+# Copie este archivo como terraform.tfvars y ajuste los valores.
+# Para despliegue repetible, use ghcr.io/unal-team5-devops/zulip-docker:sha-<7-caracteres>
+# correspondiente a un commit cuyo CI haya publicado la imagen.
+zulip_image         = "ghcr.io/unal-team5-devops/zulip-docker:latest"
+zulip_external_host = "zulip.localhost"
+zulip_admin_email   = "admin@example.com"
+bind_address        = "127.0.0.1"
+http_port           = 80
+https_port          = 443
