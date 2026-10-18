@@ -1,9 +1,22 @@
 # Copie este archivo como terraform.tfvars y ajuste los valores.
-# Para despliegue repetible, use ghcr.io/unal-team5-devops/zulip-docker:sha-<7-caracteres>
-# correspondiente a un commit cuyo CI haya publicado la imagen.
-zulip_image         = "ghcr.io/unal-team5-devops/zulip-docker:latest"
+# terraform.tfvars está en .gitignore. No ponga secretos aquí: use TF_VAR_secrets.
+
+project     = "zulip"
+environment = "dev"
+
+# Etiqueta fija publicada por el CI (sha-<7 caracteres>); latest no está permitido.
+zulip_image = "ghcr.io/unal-team5-devops/zulip-docker:sha-2699602"
+
 zulip_external_host = "zulip.localhost"
 zulip_admin_email   = "admin@example.com"
-bind_address        = "127.0.0.1"
-http_port           = 80
-https_port          = 443
+
+bind_address = "127.0.0.1"
+http_port    = 80
+https_port   = 443
+
+# Cambie las subredes si chocan con redes Docker existentes.
+frontend_subnet = "172.30.10.0/24"
+backend_subnet  = "172.30.20.0/24"
+
+# Windows con Docker Desktop:
+# docker_host = "npipe:////./pipe/docker_engine"

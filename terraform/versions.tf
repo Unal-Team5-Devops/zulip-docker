@@ -6,9 +6,9 @@ terraform {
       source  = "kreuzwerker/docker"
       version = "4.6.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.9"
+    }
   }
 }
-
-# El proveedor usa DOCKER_HOST cuando está definido; de lo contrario,
-# intenta conectarse al socket/API local de Docker.
-provider "docker" {}

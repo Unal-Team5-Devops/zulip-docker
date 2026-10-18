@@ -1,5 +1,9 @@
 variable "name_prefix" {
+  description = "Prefijo para los nombres de los volúmenes."
   type        = string
-  description = "Prefijo para nombres de volúmenes."
-  default     = "zulip"
+}
+
+variable "labels" {
+  description = "Etiquetas comunes que se aplican a cada volumen."
+  type        = map(string)
 }

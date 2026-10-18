@@ -1,44 +1,25 @@
-terraform {
-  required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "4.6.0"
+# Volúmenes con nombre. Están en un módulo propio para que su ciclo de vida no
+# dependa de los contenedores: recrear o reemplazar un contenedor no los toca.
+# Memcached es una caché en memoria y no necesita volumen.
+locals {
+  volumes = {
+    zulip    = "${var.name_prefix}-zulip-data"
+    postgres = "${var.name_prefix}-postgresql-14"
+    rabbitmq = "${var.name_prefix}-rabbitmq"
+    redis    = "${var.name_prefix}-redis"
+  }
+}
+
+resource "docker_volume" "this" {
+  for_each = local.volumes
+
+  name = each.value
+
+  dynamic "labels" {
+    for_each = merge(var.labels, { layer = "data", service = each.key })
+    content {
+      label = labels.key
+      value = labels.value
     }
-  }
-}
-
-resource "docker_volume" "zulip" {
-  name = "${var.name_prefix}-data"
-
-  labels {
-    label = "managed-by"
-    value = "terraform"
-  }
-}
-
-resource "docker_volume" "postgres" {
-  name = "${var.name_prefix}-postgresql-14"
-
-  labels {
-    label = "managed-by"
-    value = "terraform"
-  }
-}
-
-resource "docker_volume" "rabbitmq" {
-  name = "${var.name_prefix}-rabbitmq"
-
-  labels {
-    label = "managed-by"
-    value = "terraform"
-  }
-}
-
-resource "docker_volume" "redis" {
-  name = "${var.name_prefix}-redis"
-
-  labels {
-    label = "managed-by"
-    value = "terraform"
   }
 }
