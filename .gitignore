@@ -1,1 +1,15 @@
 .env
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+plan.json
+plan.txt
+crash.log
+crash.*.log
+# terraform.tfvars puede tener datos locales; solo se versiona el ejemplo.
+*.tfvars
+!terraform.tfvars.example

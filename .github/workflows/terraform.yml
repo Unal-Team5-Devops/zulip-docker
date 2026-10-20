@@ -1,0 +1,130 @@
+name: Terraform
+
+on:
+  pull_request:
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform.yml"
+  push:
+    branches: [main]
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+  TERRAFORM_VERSION: "1.16.6"
+
+defaults:
+  run:
+    working-directory: terraform
+
+jobs:
+  # 1. Análisis estático: formato, sintaxis, lint y escáneres de seguridad.
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+      - name: terraform fmt
+        run: terraform fmt -check -recursive -diff
+      - name: terraform init (sin backend)
+        run: terraform init -backend=false
+      - name: terraform validate
+        run: terraform validate
+      - uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: v0.64.0
+      - name: tflint
+        run: |
+          tflint --init
+          tflint --recursive --config "$PWD/.tflint.hcl" --format compact
+      - name: checkov
+        run: pipx run checkov==3.3.29 --directory . --framework terraform secrets --quiet --compact
+      - name: trivy (misconfiguración y secretos)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: terraform
+          scanners: misconfig,secret
+          severity: MEDIUM,HIGH,CRITICAL
+          exit-code: "1"
+
+  # 2. Plan contra el Docker del runner y políticas OPA sobre el plan.
+  plan:
+    needs: static-analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+      - name: terraform init
+        run: terraform init
+      - name: terraform plan
+        run: |
+          terraform plan -out=tfplan -no-color | tee plan.txt
+          terraform show -json tfplan > plan.json
+      - name: conftest (políticas OPA)
+        run: >-
+          docker run --rm -v "$PWD:/project" -w /project
+          openpolicyagent/conftest:v0.71.1
+          test plan.json --policy policy --all-namespaces
+      # plan.json no se sube: contiene los secretos generados en texto plano.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: terraform-plan
+          path: terraform/plan.txt
+          retention-days: 14
+
+  # 3. Despliegue real en el runner: apply, segundo plan sin cambios y destroy.
+  idempotency:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+      - name: terraform init
+        run: terraform init
+      - name: terraform apply
+        run: terraform apply -auto-approve -no-color
+      - name: Segundo plan (debe salir "No changes")
+        run: |
+          set +e
+          terraform plan -detailed-exitcode -no-color
+          code=$?
+          set -e
+          if [ "$code" -eq 2 ]; then
+            echo "::error::El segundo plan propone cambios: la configuración no es idempotente"
+            exit 1
+          fi
+          exit "$code"
+      - name: Recursos creados
+        run: |
+          terraform state list
+          docker ps --filter label=managed-by=terraform --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+          docker network ls --filter label=managed-by=terraform
+          docker volume ls --filter label=managed-by=terraform
+      - name: Logs de Zulip si algo falla
+        if: failure()
+        run: docker logs --tail 200 zulip-dev-zulip || true
+      - name: terraform destroy
+        if: always()
+        run: terraform destroy -auto-approve -no-color

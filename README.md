@@ -1,6 +1,6 @@
 # zulip-docker
 
-Empaquetado y CI de [Zulip](https://zulip.com) para la primero entrega de *Fundamentos de DevOps y SRE* (UNAL, 2026-02).
+Empaquetado y CI de [Zulip](https://zulip.com) para el proyecto de *Fundamentos de DevOps y SRE* (UNAL, 2026-02).
 
 **Equipo:** 
 
@@ -43,6 +43,16 @@ Requiere apróximadamente 2 GB de RAM para ejecutar y 4 GB para construir.
 
 PR y `main`: hadolint, yamllint, `docker compose config` → build → Trivy (HIGH/CRITICAL con fix) → push a GHCR solo desde `main`.
 Variable de repo `TRIVY_EXIT_CODE=1` hace que Trivy falle el job.
+
+## Infraestructura como código (entrega 2)
+
+[`terraform/`](terraform/README.md) aprovisiona el mismo sistema sobre Docker con el proveedor `kreuzwerker/docker`, en cuatro módulos: `network` (redes frontend y backend interna), `persistence` (volúmenes), `data` (PostgreSQL, memcached, RabbitMQ y Redis) y `compute` (Zulip). Los secretos los genera Terraform y llegan como archivos en `/run/secrets/`.
+
+```bash
+cd terraform && terraform init && terraform apply
+```
+
+El workflow `.github/workflows/terraform.yml` corre fmt, validate, tflint, checkov, Trivy, `terraform plan` con políticas OPA (conftest) y una prueba de idempotencia (apply, segundo plan sin cambios y destroy).
 
 ## Procedencia y licencias
 
