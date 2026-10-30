@@ -71,3 +71,20 @@ module "compute" {
   http_port     = var.http_port
   https_port    = var.https_port
 }
+
+module "monitoring" {
+  source = "./modules/monitoring"
+
+  depends_on = [module.compute, module.data]
+
+  frontend_network_name  = module.network.frontend_name
+  config_dir             = abspath("${path.root}/../observability")
+  grafana_config_dir     = abspath("${path.root}/../observability/grafana")
+  images                 = var.monitoring_images
+  grafana_admin_password = local.secrets["grafana_admin_password"]
+  grafana_admin_user     = var.grafana_admin_user
+  bind_address           = var.bind_address
+  prometheus_port        = var.prometheus_port
+  blackbox_port          = var.blackbox_port
+  grafana_port           = var.grafana_port
+}

@@ -10,6 +10,7 @@ locals {
     "redis_password",
     "secret_key",
     "email_password",
+    "grafana_admin_password"
   ])
 }
 

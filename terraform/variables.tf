@@ -140,8 +140,46 @@ variable "secrets" {
   validation {
     condition = alltrue([for k in keys(var.secrets) : contains([
       "postgres_password", "memcached_password", "rabbitmq_password",
-      "redis_password", "secret_key", "email_password",
+      "redis_password", "secret_key", "email_password", "grafana_admin_password"
     ], k)])
-    error_message = "secrets solo admite las claves postgres_password, memcached_password, rabbitmq_password, redis_password, secret_key y email_password."
+    error_message = "secrets solo admite las claves postgres_password, memcached_password, rabbitmq_password, redis_password, secret_key, email_password y grafana_admin_password."
   }
+}
+
+variable "prometheus_port" {
+  description = "Puerto local publicado para la interfaz de Prometheus."
+  type        = number
+  default     = 9090
+}
+
+variable "blackbox_port" {
+  description = "Puerto local de diagnóstico del Blackbox Exporter."
+  type        = number
+  default     = 9115
+}
+
+variable "monitoring_images" {
+  description = "Imágenes de Prometheus, Blackbox Exporter y Grafana, con etiqueta fija."
+  type = object({
+    prometheus        = string
+    blackbox_exporter = string
+    grafana           = string
+  })
+  default = {
+    prometheus        = "prom/prometheus:v2.49.0"
+    blackbox_exporter = "prom/blackbox-exporter:v0.24.0"
+    grafana           = "grafana/grafana:13.3.0"
+  }
+}
+
+variable "grafana_port" {
+  description = "Puerto local publicado para la interfaz de Grafana."
+  type        = number
+  default     = 3000
+}
+
+variable "grafana_admin_user" {
+  description = "Usuario administrador inicial de Grafana."
+  type        = string
+  default     = "admin"
 }

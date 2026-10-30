@@ -88,18 +88,12 @@ resource "docker_container" "memcached" {
   command = [
     "sh",
     "-euc",
-    <<-EOT
-      umask 077
-      echo 'mech_list: plain' > "$SASL_CONF_PATH"
-      echo "zulip@$HOSTNAME:$(cat "$MEMCACHED_PASSWORD_FILE")" > "$MEMCACHED_SASL_PWDB"
-      echo "zulip@localhost:$(cat "$MEMCACHED_PASSWORD_FILE")" >> "$MEMCACHED_SASL_PWDB"
-      exec memcached -S
-    EOT
+    "echo 'mech_list: plain' > \"$SASL_CONF_PATH\"; echo \"zulip@$HOSTNAME:$(cat \"$MEMCACHED_PASSWORD_FILE\")\" > \"$MEMCACHED_SASL_PWDB\"; echo \"zulip@localhost:$(cat \"$MEMCACHED_PASSWORD_FILE\")\" >> \"$MEMCACHED_SASL_PWDB\"; chmod 600 \"$SASL_CONF_PATH\" \"$MEMCACHED_SASL_PWDB\"; exec memcached -S",
   ]
 
   env = [
-    "SASL_CONF_PATH=/home/memcache/memcached.conf",
-    "MEMCACHED_SASL_PWDB=/home/memcache/memcached-sasl-db",
+    "SASL_CONF_PATH=/tmp/memcached.conf",
+    "MEMCACHED_SASL_PWDB=/tmp/memcached-sasl-db",
     "MEMCACHED_PASSWORD_FILE=/run/secrets/zulip__memcached_password",
   ]
 
@@ -148,10 +142,8 @@ resource "docker_container" "rabbitmq" {
   command = [
     "sh",
     "-euc",
-    <<-EOT
-      export RABBITMQ_DEFAULT_PASS="$(cat "$RABBITMQ_PASSWORD_FILE")"
-      exec docker-entrypoint.sh rabbitmq-server
-    EOT
+    "export RABBITMQ_DEFAULT_PASS=\"$(cat \"$RABBITMQ_PASSWORD_FILE\")\"; exec docker-entrypoint.sh rabbitmq-server",
+
   ]
 
   env = [
@@ -207,12 +199,7 @@ resource "docker_container" "redis" {
   command = [
     "sh",
     "-euc",
-    <<-EOT
-      umask 077
-      printf 'requirepass %s\n' "$(cat "$REDIS_PASSWORD_FILE")" > /tmp/redis.conf
-      chown redis /tmp/redis.conf
-      exec docker-entrypoint.sh redis-server /tmp/redis.conf
-    EOT
+    "printf 'requirepass %s\\n' \"$(cat \"$REDIS_PASSWORD_FILE\")\" > /data/redis.conf; exec docker-entrypoint.sh redis-server /data/redis.conf",
   ]
 
   env = ["REDIS_PASSWORD_FILE=/run/secrets/zulip__redis_password"]

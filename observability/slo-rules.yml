@@ -1,0 +1,59 @@
+groups:
+  - name: zulip-sli-recording-rules
+    interval: 30s
+    rules:
+      # Proporción de comprobaciones HTTP sintéticas exitosas durante la ventana móvil.
+      - record: zulip:availability_sli:ratio_30d
+        expr: |
+          avg_over_time(
+            (
+              probe_success{job="zulip-blackbox"}
+              OR on(job, instance)
+              (0 * up{job="zulip-blackbox"})
+            )[30d:30s]
+          )
+
+      # Comprobación buena = endpoint exitoso Y duración <= 1.5 segundos.
+      # La subconsulta evalúa las muestras cada 30 segundos.
+      - record: zulip:latency_sli:ratio_30d
+        expr: |
+          avg_over_time(
+            (
+              (
+                (
+                  probe_success{job="zulip-blackbox"}
+                  OR on(job, instance)
+                  (0 * up{job="zulip-blackbox"})
+                ) == bool 1
+              )
+              *
+              (
+                (probe_duration_seconds{job="zulip-blackbox"} <= bool 1.5)
+                OR on(job, instance)
+                (0 * up{job="zulip-blackbox"})
+              )
+            )[30d:30s]
+          )
+
+      # Saldo del Error Budget: SLO disponibilidad 99% (error permitido 1%).
+      - record: zulip:availability_error_budget_remaining:ratio_30d
+        expr: |
+          clamp(
+            1 - ((1 - zulip:availability_sli:ratio_30d) / 0.01),
+            0,
+            1
+          )
+
+      # Saldo del Error Budget: SLO latencia 95% (error permitido 5%).
+      - record: zulip:latency_error_budget_remaining:ratio_30d
+        expr: |
+          clamp(
+            1 - ((1 - zulip:latency_sli:ratio_30d) / 0.05),
+            0,
+            1
+          )
+
+      # Días aproximados de observación disponibles en la ventana de 30 días.
+      # Supone scrape_interval = 30s; es un indicador de cobertura, no de SLO.
+      - record: zulip:window_coverage_days:30d
+        expr: count_over_time(up{job="zulip-blackbox"}[30d]) * 30 / 86400

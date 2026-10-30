@@ -39,3 +39,28 @@ output "realm_creation_command" {
   description = "Comando para generar el enlace de creación de la primera organización de Zulip."
   value       = "docker exec -u zulip ${module.compute.container_name} /home/zulip/deployments/current/manage.py generate_realm_creation_link"
 }
+
+output "prometheus_url" {
+  description = "Interfaz local de Prometheus para consultar las métricas."
+  value       = module.monitoring.prometheus_url
+}
+
+output "blackbox_exporter_url" {
+  description = "Endpoint local del Blackbox Exporter para pruebas puntuales."
+  value       = module.monitoring.blackbox_exporter_url
+}
+
+output "grafana_url" {
+  description = "Interfaz local de Grafana."
+  value       = module.monitoring.grafana_url
+}
+
+output "grafana_admin_user" {
+  description = "Usuario administrador inicial de Grafana. La contraseña permanece en un archivo local."
+  value       = var.grafana_admin_user
+}
+
+output "monitoring_container_names" {
+  description = "Nombres de los contenedores de observabilidad administrados por Terraform."
+  value       = module.monitoring.container_names
+}

@@ -1,0 +1,16 @@
+modules:
+  zulip_https:
+    prober: http
+    timeout: 8s
+    http:
+      method: GET
+      valid_status_codes: [200]
+      fail_if_body_not_matches_regexp:
+        - '"result"\s*:\s*"success"'
+      follow_redirects: false
+      preferred_ip_protocol: ip4
+      tls_config:
+        # Solo para el certificado autofirmado del entorno local de pruebas.
+        insecure_skip_verify: true
+      headers:
+        User-Agent: "zulip-sre-probe/1.0"
