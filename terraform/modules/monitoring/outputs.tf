@@ -12,6 +12,8 @@ output "container_names" {
   value = {
     prometheus        = docker_container.prometheus.name
     blackbox_exporter = docker_container.blackbox_exporter.name
+    postgres_exporter = docker_container.postgres_exporter.name
+    redis_exporter    = docker_container.redis_exporter.name
     grafana           = docker_container.grafana.name
   }
 }

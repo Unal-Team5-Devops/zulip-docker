@@ -31,8 +31,21 @@ Terraform aprovisiona el mismo sistema de la entrega 1 (Zulip, PostgreSQL, memca
 | Persistencia | `modules/persistence` | 4 `docker_volume` | El ciclo de vida de los datos no depende de los contenedores; reemplazar uno no borra nada. |
 | Datos | `modules/data` | 4 `docker_image` + 4 `docker_container` | Servicios con estado, solo en la red backend, sin puertos publicados y con healthcheck. |
 | Cómputo | `modules/compute` | 1 `docker_image` + 1 `docker_container` | Zulip no guarda estado propio; es la única pieza en las dos redes y con puertos. |
+| Observabilidad | `modules/monitoring` | Prometheus, Blackbox Exporter, Grafana y dos volúmenes | Prometheus está en frontend y backend; Grafana y Blackbox solo en frontend. Los puertos de métricas de datos no se publican en el host. |
 
 Cada módulo tiene `main.tf`, `variables.tf`, `outputs.tf` y `versions.tf`. La raíz (`main.tf`) solo los compone: cómputo recibe de datos los endpoints (`module.data.endpoints`), y como estos son los nombres de los contenedores, Terraform crea Zulip después de que los cuatro servicios estén healthy (`wait = true`).
+#### Módulo de observabilidad
+
+`modules/monitoring` administra Prometheus, Blackbox Exporter y Grafana. Los tres contenedores y sus volúmenes llevan las etiquetas comunes más `layer = observability` y una etiqueta `service`.
+
+- Blackbox Exporter permanece en `frontend` y comprueba `https://zulip/api/v1/server_settings`.
+- Grafana permanece en `frontend` y consume Prometheus mediante `http://prometheus:9090`.
+- Prometheus se conecta a `frontend` y `backend`: en frontend accede a Blackbox y en backend consulta exportadores de las dependencias. No se publican en el host los puertos internos de PostgreSQL, Redis, Memcached o RabbitMQ.
+- RabbitMQ habilita `rabbitmq_prometheus` al arrancar y expone `rabbitmq:15692/metrics` únicamente dentro de la red backend.
+- Los volúmenes de Prometheus y Grafana pertenecen a `layer = observability`.
+
+El dashboard y el datasource de Grafana se provisionan desde `observability/grafana/`; las reglas SLI/SLO se montan desde `observability/slo-rules.yml`. Los cambios en `observability/**` activan el workflow de Terraform.
+
 
 ### Dimensionamiento
 
@@ -58,7 +71,7 @@ terraform/
 ├── policy/docker.rego   # políticas OPA (conftest) sobre el plan
 ├── scripts/verify.sh    # verificación tras el apply (Linux/macOS)
 ├── scripts/verify.ps1   # lo mismo para Windows PowerShell
-└── modules/{network,persistence,data,compute}/
+└── modules/{network,persistence,data,compute,monitoring}/
 ```
 
 ### Variables
@@ -84,7 +97,7 @@ terraform/
 
 ### Estado y credenciales
 
-- **Secretos:** `secrets.tf` genera con `random_password` las seis credenciales (contraseñas de PostgreSQL, memcached, RabbitMQ y Redis, `secret_key` y `email_password`). No hay ninguna en el código ni hay que crear archivos a mano. Llegan a los contenedores como archivos de solo lectura (`0400`) en `/run/secrets/` mediante bloques `upload`; los servicios los leen con `*_PASSWORD_FILE` y Zulip con `/run/secrets/zulip__<nombre>`. Ninguna contraseña queda en variables de entorno (lo comprueba una política).
+- **Secretos:** `secrets.tf` genera con `random_password` las siete credenciales (contraseñas de PostgreSQL, memcached, RabbitMQ y Redis, `secret_key`, `email_password` y contraseña inicial de Grafana). No hay ninguna en el código ni hay que crear archivos a mano. Llegan a los contenedores como archivos de solo lectura (`0400`) en `/run/secrets/` mediante bloques `upload`; los servicios los leen con `*_PASSWORD_FILE` y Zulip con `/run/secrets/zulip__<nombre>`. Ninguna contraseña queda en variables de entorno (lo comprueba una política).
 - Para usar valores propios: `export TF_VAR_secrets='{"postgres_password":"..."}'`.
 - **Estado:** backend `local` declarado en `backend.tf`. El estado contiene los secretos, por eso `*.tfstate` está en `.gitignore` y no se comparte. Si el equipo necesita estado compartido, se migra a un backend remoto con cifrado y bloqueo (`terraform init -migrate-state`).
 - **No rote secretos a la ligera:** PostgreSQL y RabbitMQ guardan la contraseña en su volumen al inicializarse. Cambiarla en Terraform sin cambiarla dentro del servicio rompe la conexión.
@@ -146,8 +159,9 @@ Políticas de `policy/docker.rego` (bloquean el pipeline):
 4. Toda imagen lleva etiqueta fija distinta de `latest`.
 5. Ninguna variable de entorno con nombre de secreto (`*PASSWORD`, `*SECRET`, `*TOKEN`, ...); las `*_FILE` sí se permiten.
 6. Contenedores, redes y volúmenes llevan las etiquetas `project`, `environment`, `managed-by` y `layer`.
-7. La red de la capa de datos es interna.
-8. Todo volumen pertenece a la capa de datos.
+7. Las capas permitidas dependen del recurso: contenedores (`compute`, `data`, `observability`), redes (`network`, `data`) y volúmenes (`data`, `observability`).
+8. La red de la capa de datos es interna.
+9. Los volúmenes de aplicación/datos pertenecen a `data`; los volúmenes de Prometheus y Grafana pertenecen a `observability`.
 
 Además avisa (sin bloquear) si un contenedor no tiene política de reinicio o un servicio de datos no tiene healthcheck.
 

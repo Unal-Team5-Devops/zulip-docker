@@ -142,8 +142,7 @@ resource "docker_container" "rabbitmq" {
   command = [
     "sh",
     "-euc",
-    "export RABBITMQ_DEFAULT_PASS=\"$(cat \"$RABBITMQ_PASSWORD_FILE\")\"; exec docker-entrypoint.sh rabbitmq-server",
-
+    "rabbitmq-plugins enable --offline rabbitmq_prometheus; export RABBITMQ_DEFAULT_PASS=\"$(cat \"$RABBITMQ_PASSWORD_FILE\")\"; exec docker-entrypoint.sh rabbitmq-server",
   ]
 
   env = [

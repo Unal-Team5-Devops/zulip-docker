@@ -2,7 +2,8 @@
 #   network     -> redes frontend y backend
 #   persistence -> volúmenes; su ciclo de vida no depende de los contenedores
 #   data        -> PostgreSQL, memcached, RabbitMQ y Redis, solo en la red backend
-#   compute     -> Zulip, el único contenedor en las dos redes y con puertos
+#   compute     -> Zulip, conectado a frontend/backend y con HTTP/HTTPS publicados
+#   monitoring  -> Prometheus en ambas redes; Blackbox y Grafana en frontend
 locals {
   name_prefix = "${var.project}-${var.environment}"
 
@@ -77,10 +78,16 @@ module "monitoring" {
 
   depends_on = [module.compute, module.data]
 
-  frontend_network_name  = module.network.frontend_name
-  config_dir             = abspath("${path.root}/../observability")
-  grafana_config_dir     = abspath("${path.root}/../observability/grafana")
-  images                 = var.monitoring_images
+  frontend_network_name = module.network.frontend_name
+  backend_network_name  = module.network.backend_name
+  labels                = local.labels
+  config_dir            = abspath("${path.root}/../observability")
+  grafana_config_dir    = abspath("${path.root}/../observability/grafana")
+  images                = var.monitoring_images
+  exporter_secrets = {
+    postgres_password = local.secrets["postgres_password"]
+    redis_password    = local.secrets["redis_password"]
+  }
   grafana_admin_password = local.secrets["grafana_admin_password"]
   grafana_admin_user     = var.grafana_admin_user
   bind_address           = var.bind_address

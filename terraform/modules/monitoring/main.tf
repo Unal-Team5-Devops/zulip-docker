@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "4.6.0"
-    }
-  }
-}
-
 resource "docker_image" "prometheus" {
   name         = var.images.prometheus
   keep_locally = true
@@ -19,6 +10,14 @@ resource "docker_image" "blackbox_exporter" {
 
 resource "docker_volume" "prometheus_data" {
   name = "zulip-prometheus-data"
+
+  dynamic "labels" {
+    for_each = merge(var.labels, { layer = "observability", service = "prometheus-data" })
+    content {
+      label = labels.key
+      value = labels.value
+    }
+  }
 }
 
 resource "docker_container" "blackbox_exporter" {
@@ -47,6 +46,81 @@ resource "docker_container" "blackbox_exporter" {
     container_path = "/etc/blackbox_exporter/config.yml"
     read_only      = true
   }
+
+  dynamic "labels" {
+    for_each = merge(var.labels, { layer = "observability", service = "blackbox-exporter" })
+    content {
+      label = labels.key
+      value = labels.value
+    }
+  }
+}
+
+resource "docker_container" "postgres_exporter" {
+  name       = "zulip-postgres-exporter"
+  image      = docker_image.postgres_exporter.image_id
+  restart    = "unless-stopped"
+  must_run   = true
+  privileged = false
+
+  env = [
+    "DATA_SOURCE_URI=database:5432/zulip?sslmode=disable",
+    "DATA_SOURCE_USER=zulip",
+    "DATA_SOURCE_PASS_FILE=/run/secrets/postgres_password"
+  ]
+
+  networks_advanced {
+    name    = var.backend_network_name
+    aliases = ["postgres-exporter"]
+  }
+
+  upload {
+    file        = "/run/secrets/postgres_password"
+    content     = var.exporter_secrets.postgres_password
+    permissions = "0444"
+  }
+
+  dynamic "labels" {
+    for_each = merge(var.labels, { layer = "observability", service = "postgres-exporter" })
+    content {
+      label = labels.key
+      value = labels.value
+    }
+  }
+}
+
+resource "docker_container" "redis_exporter" {
+  name       = "zulip-redis-exporter"
+  image      = docker_image.redis_exporter.image_id
+  restart    = "unless-stopped"
+  must_run   = true
+  privileged = false
+
+  command = [
+    "--redis.addr=redis://redis:6379",
+    "--redis.password-file=/run/secrets/redis_password.json"
+  ]
+
+  networks_advanced {
+    name    = var.backend_network_name
+    aliases = ["redis-exporter"]
+  }
+
+  # redis_exporter espera un JSON que mapea la URI de Redis a su contraseña.
+  # El secreto se genera en Terraform y no se incorpora al repositorio.
+  upload {
+    file        = "/run/secrets/redis_password.json"
+    content     = jsonencode({ "redis://redis:6379" = var.exporter_secrets.redis_password })
+    permissions = "0444"
+  }
+
+  dynamic "labels" {
+    for_each = merge(var.labels, { layer = "observability", service = "redis-exporter" })
+    content {
+      label = labels.key
+      value = labels.value
+    }
+  }
 }
 
 resource "docker_container" "prometheus" {
@@ -63,11 +137,24 @@ resource "docker_container" "prometheus" {
     "--web.enable-lifecycle",
   ]
 
-  depends_on = [docker_container.blackbox_exporter]
+  depends_on = [
+    docker_container.blackbox_exporter,
+    docker_container.postgres_exporter,
+    docker_container.redis_exporter,
+  ]
 
   networks_advanced {
     name    = var.frontend_network_name
     aliases = ["prometheus"]
+  }
+
+  # Prometheus necesita la red backend para recopilar métricas de RabbitMQ y de
+  # futuros exportadores de PostgreSQL, Redis y Memcached. No se publica ningún
+  # puerto de datos en el host; estos endpoints solo son accesibles dentro de
+  # la red backend de Docker.
+  networks_advanced {
+    name    = var.backend_network_name
+    aliases = ["prometheus-backend"]
   }
 
   ports {
@@ -93,10 +180,28 @@ resource "docker_container" "prometheus" {
     volume_name    = docker_volume.prometheus_data.name
     container_path = "/prometheus"
   }
+
+  dynamic "labels" {
+    for_each = merge(var.labels, { layer = "observability", service = "prometheus" })
+    content {
+      label = labels.key
+      value = labels.value
+    }
+  }
 }
 
 
 # Grafana OSS: datasource y dashboard se aprovisionan desde archivos versionados.
+resource "docker_image" "postgres_exporter" {
+  name         = var.images.postgres_exporter
+  keep_locally = true
+}
+
+resource "docker_image" "redis_exporter" {
+  name         = var.images.redis_exporter
+  keep_locally = true
+}
+
 resource "docker_image" "grafana" {
   name         = var.images.grafana
   keep_locally = true
@@ -104,6 +209,14 @@ resource "docker_image" "grafana" {
 
 resource "docker_volume" "grafana_data" {
   name = "zulip-grafana-data"
+
+  dynamic "labels" {
+    for_each = merge(var.labels, { layer = "observability", service = "grafana-data" })
+    content {
+      label = labels.key
+      value = labels.value
+    }
+  }
 }
 
 resource "docker_container" "grafana" {
@@ -160,5 +273,13 @@ resource "docker_container" "grafana" {
     permissions = "0400"
     owner       = "472"
     group       = "472"
+  }
+
+  dynamic "labels" {
+    for_each = merge(var.labels, { layer = "observability", service = "grafana" })
+    content {
+      label = labels.key
+      value = labels.value
+    }
   }
 }

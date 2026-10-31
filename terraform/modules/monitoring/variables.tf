@@ -1,6 +1,16 @@
 variable "frontend_network_name" {
-  description = "Red Docker donde Zulip publica su endpoint y se conectan los componentes de monitoreo."
+  description = "Red Docker frontend: Zulip, Blackbox Exporter, Prometheus y Grafana."
   type        = string
+}
+
+variable "backend_network_name" {
+  description = "Red Docker backend interna: Prometheus la necesita para consultar exportadores de las dependencias."
+  type        = string
+}
+
+variable "labels" {
+  description = "Etiquetas comunes; el módulo agrega layer = observability y una etiqueta service específica."
+  type        = map(string)
 }
 
 variable "config_dir" {
@@ -9,10 +19,12 @@ variable "config_dir" {
 }
 
 variable "images" {
-  description = "Imágenes de los contenedores de monitoreo, con etiqueta fija."
+  description = "Imágenes de Prometheus, exportadores y Grafana, con etiqueta fija."
   type = object({
     prometheus        = string
     blackbox_exporter = string
+    postgres_exporter = string
+    redis_exporter    = string
     grafana           = string
   })
 }
@@ -56,4 +68,13 @@ variable "grafana_port" {
   description = "Puerto local de la interfaz web de Grafana."
   type        = number
   default     = 3000
+}
+
+variable "exporter_secrets" {
+  description = "Credenciales generadas por Terraform para consultar PostgreSQL y Redis."
+  type = object({
+    postgres_password = string
+    redis_password    = string
+  })
+  sensitive = true
 }

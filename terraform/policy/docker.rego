@@ -101,11 +101,28 @@ deny contains msg if {
 	msg := sprintf("%s no tiene las etiquetas obligatorias %v", [r.address, sort(missing)])
 }
 
+# Cada tipo de recurso solo puede pertenecer a las capas definidas por la
+# arquitectura. La capa observability cubre Prometheus, Blackbox, Grafana y sus
+# volúmenes; los volúmenes de aplicaciones/datos continúan en layer = data.
+deny contains msg if {
+	some r in resources
+	r.type == "docker_container"
+	not layer_of(r) in {"compute", "data", "observability"}
+	msg := sprintf("%s tiene una capa no permitida para un contenedor: %q", [r.address, layer_of(r)])
+}
+
+deny contains msg if {
+	some r in resources
+	r.type == "docker_network"
+	not layer_of(r) in {"network", "data"}
+	msg := sprintf("%s tiene una capa no permitida para una red: %q", [r.address, layer_of(r)])
+}
+
 deny contains msg if {
 	some r in resources
 	r.type == "docker_volume"
-	layer_of(r) != "data"
-	msg := sprintf("%s es un volumen y debe pertenecer a la capa de datos (layer = data)", [r.address])
+	not layer_of(r) in {"data", "observability"}
+	msg := sprintf("%s debe pertenecer a layer = data u observability", [r.address])
 }
 
 # --- Avisos ------------------------------------------------------------------

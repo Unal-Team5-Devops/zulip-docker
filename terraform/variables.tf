@@ -159,15 +159,19 @@ variable "blackbox_port" {
 }
 
 variable "monitoring_images" {
-  description = "Imágenes de Prometheus, Blackbox Exporter y Grafana, con etiqueta fija."
+  description = "Imágenes de Prometheus, exportadores y Grafana, con etiquetas fijas."
   type = object({
     prometheus        = string
     blackbox_exporter = string
+    postgres_exporter = string
+    redis_exporter    = string
     grafana           = string
   })
   default = {
-    prometheus        = "prom/prometheus:v2.49.0"
+    prometheus        = "prom/prometheus:v3.13.5"
     blackbox_exporter = "prom/blackbox-exporter:v0.24.0"
+    postgres_exporter = "quay.io/prometheuscommunity/postgres-exporter:v0.20.1"
+    redis_exporter    = "oliver006/redis_exporter:v1.93.0-alpine"
     grafana           = "grafana/grafana:13.3.0"
   }
 }

@@ -21,15 +21,35 @@
   "id": null,
   "links": [],
   "liveNow": false,
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": [
+    "zulip",
+    "sre",
+    "prometheus"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Zulip · Dashboard SRE y Golden Signals",
+  "uid": "zulip-sre-initial",
+  "version": 2,
+  "weekStart": "",
   "panels": [
     {
       "id": 1,
       "type": "stat",
-      "title": "Disponibilidad SLI · ventana 30d",
-      "description": "Porcentaje de comprobaciones Blackbox exitosas. La ventana se completa progresivamente; consultar también Cobertura de ventana.",
+      "title": "Disponibilidad SLI · 30 días",
+      "description": "Porcentaje de comprobaciones sintéticas exitosas. SLO objetivo: 99%. La ventana es móvil y su cobertura se muestra al lado.",
       "gridPos": {
         "h": 5,
-        "w": 6,
+        "w": 5,
         "x": 0,
         "y": 0
       },
@@ -40,8 +60,6 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "min": 0,
-          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -50,7 +68,7 @@
                 "value": null
               },
               {
-                "color": "yellow",
+                "color": "orange",
                 "value": 95
               },
               {
@@ -58,7 +76,10 @@
                 "value": 99
               }
             ]
-          }
+          },
+          "min": 0,
+          "max": 100,
+          "decimals": 2
         },
         "overrides": []
       },
@@ -86,7 +107,8 @@
           "expr": "100 * zulip:availability_sli:ratio_30d",
           "instant": true,
           "range": false,
-          "refId": "A"
+          "refId": "A",
+          "format": "time_series"
         }
       ]
     },
@@ -94,11 +116,11 @@
       "id": 2,
       "type": "stat",
       "title": "Error Budget restante · disponibilidad",
-      "description": "Saldo del presupuesto de disponibilidad, con SLO 99% y error permitido 1%.",
+      "description": "Presupuesto restante frente al SLO de disponibilidad del 99%. Cero significa que el presupuesto permitido se consumió.",
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 6,
+        "w": 5,
+        "x": 5,
         "y": 0
       },
       "datasource": {
@@ -108,8 +130,6 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "min": 0,
-          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -130,7 +150,10 @@
                 "value": 75
               }
             ]
-          }
+          },
+          "min": 0,
+          "max": 100,
+          "decimals": 2
         },
         "overrides": []
       },
@@ -158,19 +181,20 @@
           "expr": "100 * zulip:availability_error_budget_remaining:ratio_30d",
           "instant": true,
           "range": false,
-          "refId": "A"
+          "refId": "A",
+          "format": "time_series"
         }
       ]
     },
     {
       "id": 3,
       "type": "stat",
-      "title": "SLI de latencia · ventana 30d",
-      "description": "Porcentaje de comprobaciones exitosas que además responden en <= 1.5s. SLO 95%.",
+      "title": "Latencia SLI · 30 días",
+      "description": "Porcentaje de probes exitosos con duración menor o igual a 1.5 s. SLO objetivo: 95%.",
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 12,
+        "w": 5,
+        "x": 10,
         "y": 0
       },
       "datasource": {
@@ -180,8 +204,6 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "min": 0,
-          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -190,7 +212,7 @@
                 "value": null
               },
               {
-                "color": "yellow",
+                "color": "orange",
                 "value": 90
               },
               {
@@ -198,7 +220,10 @@
                 "value": 95
               }
             ]
-          }
+          },
+          "min": 0,
+          "max": 100,
+          "decimals": 2
         },
         "overrides": []
       },
@@ -226,7 +251,8 @@
           "expr": "100 * zulip:latency_sli:ratio_30d",
           "instant": true,
           "range": false,
-          "refId": "A"
+          "refId": "A",
+          "format": "time_series"
         }
       ]
     },
@@ -234,11 +260,11 @@
       "id": 4,
       "type": "stat",
       "title": "Error Budget restante · latencia",
-      "description": "Saldo del presupuesto de latencia, con SLO 95% y error permitido 5%.",
+      "description": "Presupuesto restante frente al SLO de latencia del 95%.",
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 18,
+        "w": 5,
+        "x": 15,
         "y": 0
       },
       "datasource": {
@@ -248,8 +274,6 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "min": 0,
-          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -270,7 +294,10 @@
                 "value": 75
               }
             ]
-          }
+          },
+          "min": 0,
+          "max": 100,
+          "decimals": 2
         },
         "overrides": []
       },
@@ -298,266 +325,21 @@
           "expr": "100 * zulip:latency_error_budget_remaining:ratio_30d",
           "instant": true,
           "range": false,
-          "refId": "A"
+          "refId": "A",
+          "format": "time_series"
         }
       ]
     },
     {
       "id": 5,
-      "type": "timeseries",
-      "title": "Latencia p95 de comprobaciones sintéticas · 5m",
-      "description": "Percentil 95 de la duración de probes Blackbox en los últimos cinco minutos. No equivale al p95 de todas las peticiones reales de usuarios.",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "quantile_over_time(0.95, probe_duration_seconds{job=\"zulip-blackbox\"}[5m])",
-          "instant": false,
-          "range": true,
-          "refId": "A",
-          "legendFormat": "probe duration"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "type": "timeseries",
-      "title": "Tasa de fallos sintéticos · últimos 5m",
-      "description": "Porcentaje de comprobaciones sintéticas fallidas durante los últimos cinco minutos.",
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 12,
-        "y": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "100 * (1 - avg_over_time((probe_success{job=\"zulip-blackbox\"} OR on(job, instance) (0 * up{job=\"zulip-blackbox\"}))[5m:30s]))",
-          "instant": false,
-          "range": true,
-          "refId": "A",
-          "legendFormat": "fallos %"
-        }
-      ]
-    },
-    {
-      "id": 7,
-      "type": "timeseries",
-      "title": "Comprobaciones sintéticas por minuto",
-      "description": "Volumen de comprobaciones del monitor; no representa tráfico real de usuarios.",
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 18,
-        "y": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "count_over_time(probe_success{job=\"zulip-blackbox\"}[5m]) / 5",
-          "instant": false,
-          "range": true,
-          "refId": "A",
-          "legendFormat": "checks/min"
-        }
-      ]
-    },
-    {
-      "id": 8,
       "type": "stat",
-      "title": "Validación de respuesta HTTP",
-      "description": "1 significa HTTP 200; 0 indica cualquier otro código de respuesta.",
+      "title": "Cobertura observada · días de 30",
+      "description": "Días aproximados con muestras del target Blackbox en la ventana móvil. No interpretar el SLI como mensual definitivo si la cobertura es parcial.",
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 13
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none",
-          "min": 0,
-          "max": 1,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "0": {
-                  "text": "No HTTP 200",
-                  "color": "red",
-                  "index": 0
-                },
-                "1": {
-                  "text": "HTTP 200 OK",
-                  "color": "green",
-                  "index": 1
-                }
-              }
-            }
-          ]
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "probe_http_status_code{job=\"zulip-blackbox\"} == bool 200",
-          "instant": true,
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 9,
-      "type": "stat",
-      "title": "Cobertura de la ventana de 30d",
-      "description": "Días aproximados de muestras disponibles en la ventana. Requiere acumular hasta 30 días de observaciones.",
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 13
+        "w": 4,
+        "x": 20,
+        "y": 0
       },
       "datasource": {
         "type": "prometheus",
@@ -566,8 +348,6 @@
       "fieldConfig": {
         "defaults": {
           "unit": "d",
-          "min": 0,
-          "max": 30,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -577,14 +357,17 @@
               },
               {
                 "color": "yellow",
-                "value": 7
+                "value": 20
               },
               {
                 "color": "green",
-                "value": 30
+                "value": 27
               }
             ]
-          }
+          },
+          "min": 0,
+          "max": 30,
+          "decimals": 1
         },
         "overrides": []
       },
@@ -612,20 +395,920 @@
           "expr": "zulip:window_coverage_days:30d",
           "instant": true,
           "range": false,
-          "refId": "A"
+          "refId": "A",
+          "format": "time_series"
         }
       ]
     },
     {
-      "id": 10,
-      "type": "table",
-      "title": "Estado de recolección de métricas",
-      "description": "UP=1 significa que Prometheus pudo recolectar el target.",
+      "id": 6,
+      "type": "row",
+      "title": "Golden Signal 1 · Latencia",
       "gridPos": {
-        "h": 5,
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Latencia de comprobaciones sintéticas · p50 / p95 / p99",
+      "description": "Duración total de la comprobación HTTP sintética a Zulip. No equivale a la latencia de cada petición real de usuario.",
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "quantile_over_time(0.50, probe_duration_seconds{job=\"zulip-blackbox\"}[5m])",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "p50"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "quantile_over_time(0.95, probe_duration_seconds{job=\"zulip-blackbox\"}[5m])",
+          "instant": false,
+          "range": true,
+          "refId": "B",
+          "format": "time_series",
+          "legendFormat": "p95"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "quantile_over_time(0.99, probe_duration_seconds{job=\"zulip-blackbox\"}[5m])",
+          "instant": false,
+          "range": true,
+          "refId": "C",
+          "format": "time_series",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Duración de la comprobación Blackbox",
+      "description": "Duración observada por cada probe sintético.",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "probe_duration_seconds{job=\"zulip-blackbox\"}",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "row",
+      "title": "Golden Signal 2 · Tráfico / actividad",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Frecuencia de comprobaciones sintéticas",
+      "description": "Frecuencia de probes del monitor. Es tráfico de monitorización, no solicitudes HTTP reales de usuarios.",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 15
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "count_over_time(probe_success{job=\"zulip-blackbox\"}[5m]) / 5",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "probes/min"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Actividad transaccional PostgreSQL",
+      "description": "Tasa de transacciones confirmadas y revertidas reportadas por PostgreSQL.",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 15
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(pg_stat_database_xact_commit[5m]))",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "commits/s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(pg_stat_database_xact_rollback[5m]))",
+          "instant": false,
+          "range": true,
+          "refId": "B",
+          "format": "time_series",
+          "legendFormat": "rollbacks/s"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Comandos procesados por Redis",
+      "description": "Tasa de comandos procesados por Redis. Actividad de dependencia; no es un contador de solicitudes HTTP de Zulip.",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 15
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "rate(redis_commands_processed_total[5m])",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "commands/s"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "row",
+      "title": "Golden Signal 3 · Errores",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "Porcentaje de comprobaciones sintéticas fallidas",
+      "description": "Porcentaje de probes fallidos en los últimos cinco minutos. No representa todos los errores HTTP o excepciones de la aplicación.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "100 * (1 - avg_over_time((probe_success{job=\"zulip-blackbox\"} OR on(job, instance) (0 * up{job=\"zulip-blackbox\"}))[5m:30s]))",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "fallos %"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Código HTTP observado por Blackbox",
+      "description": "Código HTTP devuelto por el endpoint sintético. Si el probe falla antes de recibir respuesta, puede no existir una muestra.",
+      "gridPos": {
+        "h": 8,
         "w": 12,
         "x": 12,
-        "y": 13
+        "y": 24
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "probe_http_status_code{job=\"zulip-blackbox\"}",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "HTTP {{instance}}"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "type": "row",
+      "title": "Golden Signal 4 · Saturación",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 17,
+      "type": "timeseries",
+      "title": "Uso de conexiones PostgreSQL",
+      "description": "Conexiones observadas frente al máximo configurado en PostgreSQL.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 33
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "100 * pg_stat_activity_count / pg_settings_max_connections",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "conexiones usadas %"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "pg_stat_activity_count",
+          "instant": false,
+          "range": true,
+          "refId": "B",
+          "format": "time_series",
+          "legendFormat": "conexiones activas"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "pg_settings_max_connections",
+          "instant": false,
+          "range": true,
+          "refId": "C",
+          "format": "time_series",
+          "legendFormat": "máximo configurado"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Memoria utilizada por Redis",
+      "description": "Memoria reportada por Redis. El panel muestra uso absoluto; no calcula porcentaje si maxmemory no está configurado.",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 33
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "redis_memory_used_bytes",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "memoria usada"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "type": "timeseries",
+      "title": "Clientes conectados a Redis",
+      "description": "Número de clientes conectados a Redis.",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 33
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "redis_connected_clients",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "clientes"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "type": "timeseries",
+      "title": "Backlog de colas RabbitMQ",
+      "description": "Mensajes listos y no confirmados en las colas RabbitMQ. Un crecimiento sostenido puede indicar saturación de consumidores.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 41
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(rabbitmq_queue_messages_ready)",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "ready"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(rabbitmq_queue_messages_unacked)",
+          "instant": false,
+          "range": true,
+          "refId": "B",
+          "format": "time_series",
+          "legendFormat": "unacked"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "Memoria residente del proceso RabbitMQ",
+      "description": "Memoria residente del proceso RabbitMQ reportada por el plugin Prometheus.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 41
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "rabbitmq_process_resident_memory_bytes",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "RSS"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "type": "row",
+      "title": "Estado de la plataforma de observabilidad",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 23,
+      "type": "table",
+      "title": "Estado de scraping por componente",
+      "description": "up = 1 indica que Prometheus pudo recolectar métricas del target. Para los exporters, revisar también las métricas de salud propias como pg_up y redis_up.",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 50
       },
       "datasource": {
         "type": "prometheus",
@@ -635,9 +1318,7 @@
         "defaults": {
           "custom": {
             "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
+            "displayMode": "auto",
             "inspect": false
           }
         },
@@ -646,6 +1327,14 @@
       "options": {
         "showHeader": true,
         "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "lastNotNull"
+          ],
+          "countRows": false,
+          "fields": ""
+        },
         "sortBy": []
       },
       "targets": [
@@ -655,48 +1344,106 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "up{job=~\"prometheus|blackbox-exporter|zulip-blackbox\"}",
+          "expr": "up{job=~\"prometheus|blackbox-exporter|rabbitmq|postgres|redis|zulip-blackbox\"}",
           "instant": false,
           "range": true,
           "refId": "A",
-          "legendFormat": "{{job}}"
+          "format": "table",
+          "legendFormat": "{{job}} · {{instance}}"
         }
       ]
     },
     {
-      "id": 11,
-      "type": "text",
-      "title": "Alcance actual y siguientes señales por instrumentar",
+      "id": 24,
+      "type": "timeseries",
+      "title": "Salud de conexiones a dependencias",
+      "description": "Métricas propias de salud de los exporters. Valor 1 indica conexión exitosa a la dependencia.",
       "gridPos": {
         "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 50
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "pg_up",
+          "instant": false,
+          "range": true,
+          "refId": "A",
+          "format": "time_series",
+          "legendFormat": "PostgreSQL"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "redis_up",
+          "instant": false,
+          "range": true,
+          "refId": "B",
+          "format": "time_series",
+          "legendFormat": "Redis"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "type": "text",
+      "title": "Alcance y límites de instrumentación",
+      "gridPos": {
+        "h": 10,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 57
       },
       "options": {
         "mode": "markdown",
-        "content": "### Estado de la instrumentación\n\n- **Latencia:** disponible como duración de comprobaciones sintéticas de Blackbox.\n- **Errores:** disponible como fallos de la comprobación sintética; todavía no representa todos los errores HTTP de usuarios.\n- **Tráfico:** el panel muestra comprobaciones del monitor por minuto, no solicitudes reales de usuarios.\n- **Saturación:** pendiente de cAdvisor y exportadores de PostgreSQL, Redis, RabbitMQ y Memcached.\n\nLos SLI y Error Budgets de 30 días son provisionales mientras se llena la cobertura histórica. El panel de cobertura indica cuántos días aproximados de observaciones hay disponibles. No interpretar una ventana parcial como cumplimiento mensual definitivo."
+        "content": "### Cómo interpretar este dashboard\n\n- **Disponibilidad y SLO:** se calculan a partir del endpoint sintético de Zulip (`/api/v1/server_settings`) y de una ventana móvil de 30 días. La cobertura permite identificar ventanas aún incompletas.\n- **Latencia:** corresponde al tiempo de respuesta de la comprobación sintética; no es un histograma de latencia de todas las peticiones de usuarios.\n- **Tráfico:** las comprobaciones por minuto son tráfico del monitor. Las transacciones PostgreSQL y los comandos Redis muestran actividad de dependencias, no el RPS HTTP de Zulip.\n- **Errores:** el porcentaje mostrado corresponde a fallos del probe; no incluye todos los errores de negocio, HTTP ni excepciones internas.\n- **Saturación:** se aproxima mediante conexiones PostgreSQL, memoria/clientes Redis, backlog de RabbitMQ y memoria residente RabbitMQ.\n\n### Instrumentación adicional para una visión completa\n\nPara medir tráfico y errores reales de la aplicación se requiere instrumentar métricas HTTP de Zulip (solicitudes por ruta/método, códigos de respuesta y latencias en buckets). Para saturación del host/contenedores se recomienda incorporar métricas de CPU, memoria, filesystem y red (por ejemplo, cAdvisor o métricas equivalentes). Memcached no se incluye hasta contar con una solución de métricas compatible con SASL.\n\n**SLO configurados:** disponibilidad ≥ 99%; latencia ≤ 1.5 s en al menos 95% de las comprobaciones exitosas. Los Error Budgets se calculan respecto a esos objetivos."
       }
     }
   ],
-  "refresh": "30s",
-  "schemaVersion": 41,
-  "tags": [
-    "zulip",
-    "sre",
-    "prometheus"
-  ],
-  "templating": {
-    "list": []
-  },
-  "time": {
-    "from": "now-6h",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "Zulip · SRE y Observabilidad (inicial)",
-  "uid": "zulip-sre-initial",
-  "version": 1,
-  "weekStart": ""
+  "description": "Disponibilidad, SLO, Error Budget y Golden Signals para Zulip y sus dependencias. Las métricas sintéticas y de dependencias están identificadas explícitamente; no representan tráfico HTTP real de usuarios."
 }
