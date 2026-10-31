@@ -1,0 +1,11 @@
+{
+  "started_unix": 1793405411.219116,
+  "finished_unix": 1793405651.232106,
+  "url": "https://zulip.localhost:8080/login/",
+  "configured_rps": 5.0,
+  "requests": 1200,
+  "statuses": {
+    "500": 1200
+  },
+  "p95_seconds": 0.03318454099644441
+}

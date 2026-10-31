@@ -1,0 +1,540 @@
+{
+  "captured_at": "2026-10-31T00:20:11.719641+00:00",
+  "queries": {
+    "sum(rate(zulip_postgres_stat_total{operation=~\"commit|rollback\"}[5m]))": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1793406011.742,
+              "10.70533828307567"
+            ]
+          }
+        ]
+      }
+    },
+    "zulip_postgres_connections / zulip_postgres_max_connections": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "collector:9105",
+              "job": "zulip"
+            },
+            "value": [
+              1793406011.744,
+              "0.13"
+            ]
+          }
+        ]
+      }
+    },
+    "zulip_gateway_connections{state=\"active\"} / 1024": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "collector:9105",
+              "job": "zulip",
+              "state": "active"
+            },
+            "value": [
+              1793406011.745,
+              "0.0009765625"
+            ]
+          }
+        ]
+      }
+    },
+    "zulip:telemetry_coverage:ratio": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "zulip:telemetry_coverage:ratio"
+            },
+            "value": [
+              1793406011.747,
+              "0.001394675925925926"
+            ]
+          }
+        ]
+      }
+    },
+    "up": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "up",
+              "instance": "cadvisor:8080",
+              "job": "cadvisor"
+            },
+            "value": [
+              1793406011.749,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "up",
+              "instance": "collector:9105",
+              "job": "zulip"
+            },
+            "value": [
+              1793406011.749,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "up",
+              "instance": "localhost:9090",
+              "job": "prometheus"
+            },
+            "value": [
+              1793406011.749,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "up",
+              "instance": "rabbitmq:15692",
+              "job": "rabbitmq"
+            },
+            "value": [
+              1793406011.749,
+              "1"
+            ]
+          }
+        ]
+      }
+    },
+    "zulip_dependency_up": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "zulip_dependency_up",
+              "dependency": "redis",
+              "instance": "collector:9105",
+              "job": "zulip"
+            },
+            "value": [
+              1793406011.75,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "zulip_dependency_up",
+              "dependency": "memcached",
+              "instance": "collector:9105",
+              "job": "zulip"
+            },
+            "value": [
+              1793406011.75,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "zulip_dependency_up",
+              "dependency": "gateway",
+              "instance": "collector:9105",
+              "job": "zulip"
+            },
+            "value": [
+              1793406011.75,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "zulip_dependency_up",
+              "dependency": "rabbitmq",
+              "instance": "collector:9105",
+              "job": "zulip"
+            },
+            "value": [
+              1793406011.75,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "zulip_dependency_up",
+              "dependency": "postgres",
+              "instance": "collector:9105",
+              "job": "zulip"
+            },
+            "value": [
+              1793406011.75,
+              "1"
+            ]
+          }
+        ]
+      }
+    },
+    "zulip:slo_compliance:30d": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "zulip:slo_compliance:30d",
+              "slo": "availability"
+            },
+            "value": [
+              1793406011.751,
+              "0.7230414746543778"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "zulip:slo_compliance:30d",
+              "slo": "latency"
+            },
+            "value": [
+              1793406011.751,
+              "0.9972350230414747"
+            ]
+          }
+        ]
+      }
+    },
+    "zulip:error_budget_remaining:ratio": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "zulip:error_budget_remaining:ratio",
+              "slo": "availability"
+            },
+            "value": [
+              1793406011.752,
+              "-26.69585253456221"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "zulip:error_budget_remaining:ratio",
+              "slo": "latency"
+            },
+            "value": [
+              1793406011.752,
+              "0.9447004608294942"
+            ]
+          }
+        ]
+      }
+    },
+    "zulip:slo_burn_rate:5m": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "zulip:slo_burn_rate:5m",
+              "slo": "availability"
+            },
+            "value": [
+              1793406011.753,
+              "0"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "zulip:slo_burn_rate:5m",
+              "slo": "latency"
+            },
+            "value": [
+              1793406011.753,
+              "0"
+            ]
+          }
+        ]
+      }
+    },
+    "zulip:slo_burn_rate:1h": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "zulip:slo_burn_rate:1h",
+              "slo": "availability"
+            },
+            "value": [
+              1793406011.753,
+              "27.695852534562214"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "zulip:slo_burn_rate:1h",
+              "slo": "latency"
+            },
+            "value": [
+              1793406011.753,
+              "0.055299539170505785"
+            ]
+          }
+        ]
+      }
+    },
+    "ALERTS": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "ALERTS",
+              "alertname": "ZulipErrorBudgetTicket",
+              "alertstate": "pending",
+              "service": "zulip",
+              "severity": "warning",
+              "slo": "availability"
+            },
+            "value": [
+              1793406011.755,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "ALERTS",
+              "alertname": "ZulipErrorBudgetSlowBurn",
+              "alertstate": "firing",
+              "service": "zulip",
+              "severity": "critical",
+              "slo": "availability"
+            },
+            "value": [
+              1793406011.755,
+              "1"
+            ]
+          }
+        ]
+      }
+    },
+    "sum by(status_class)(zulip_http_requests_total)": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "status_class": "2xx"
+            },
+            "value": [
+              1793406011.756,
+              "3288"
+            ]
+          },
+          {
+            "metric": {
+              "status_class": "3xx"
+            },
+            "value": [
+              1793406011.756,
+              "0"
+            ]
+          },
+          {
+            "metric": {
+              "status_class": "4xx"
+            },
+            "value": [
+              1793406011.756,
+              "0"
+            ]
+          },
+          {
+            "metric": {
+              "status_class": "5xx"
+            },
+            "value": [
+              1793406011.756,
+              "1202"
+            ]
+          }
+        ]
+      }
+    },
+    "histogram_quantile(.95,sum by(le)(rate(zulip_http_request_duration_seconds_bucket[5m])))": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1793406011.758,
+              "0.024346856414613424"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "alertmanager": [
+    {
+      "annotations": {
+        "description": "Consultar el dashboard zulip-sre, comprobar dependencias y seguir el runbook. Las ventanas cortas de un despliegue nuevo todav\u00eda no representan 30 d\u00edas.",
+        "runbook_url": "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md",
+        "summary": "Consumo sostenido del presupuesto de availability"
+      },
+      "endsAt": "2026-10-31T00:23:30.812Z",
+      "fingerprint": "643ead40a934652c",
+      "receivers": [
+        {
+          "name": "operational-log"
+        }
+      ],
+      "startsAt": "2026-10-31T00:15:45.812Z",
+      "status": {
+        "inhibitedBy": [],
+        "mutedBy": [],
+        "silencedBy": [],
+        "state": "active"
+      },
+      "updatedAt": "2026-10-31T00:19:43.488Z",
+      "generatorURL": "http://7ef5d600b1ef:9090/graph?g0.expr=%28zulip%3Aslo_burn_rate%3A6h+%3E+6%29+and+on+%28slo%29+%28zulip%3Aslo_burn_rate%3A30m+%3E+6%29&g0.tab=1",
+      "labels": {
+        "alertname": "ZulipErrorBudgetSlowBurn",
+        "environment": "workshop",
+        "project": "zulip",
+        "service": "zulip",
+        "severity": "critical",
+        "slo": "availability"
+      }
+    }
+  ],
+  "targets": {
+    "status": "success",
+    "data": {
+      "activeTargets": [
+        {
+          "discoveredLabels": {
+            "__address__": "cadvisor:8080",
+            "__metrics_path__": "/metrics",
+            "__scheme__": "http",
+            "__scrape_interval__": "15s",
+            "__scrape_timeout__": "10s",
+            "job": "cadvisor"
+          },
+          "labels": {
+            "instance": "cadvisor:8080",
+            "job": "cadvisor"
+          },
+          "scrapePool": "cadvisor",
+          "scrapeUrl": "http://cadvisor:8080/metrics",
+          "globalUrl": "http://cadvisor:8080/metrics",
+          "lastError": "",
+          "lastScrape": "2026-10-31T00:20:10.206627804Z",
+          "lastScrapeDuration": 0.023824958,
+          "health": "up",
+          "scrapeInterval": "15s",
+          "scrapeTimeout": "10s"
+        },
+        {
+          "discoveredLabels": {
+            "__address__": "localhost:9090",
+            "__metrics_path__": "/metrics",
+            "__scheme__": "http",
+            "__scrape_interval__": "15s",
+            "__scrape_timeout__": "10s",
+            "job": "prometheus"
+          },
+          "labels": {
+            "instance": "localhost:9090",
+            "job": "prometheus"
+          },
+          "scrapePool": "prometheus",
+          "scrapeUrl": "http://localhost:9090/metrics",
+          "globalUrl": "http://7ef5d600b1ef:9090/metrics",
+          "lastError": "",
+          "lastScrape": "2026-10-31T00:19:58.254028673Z",
+          "lastScrapeDuration": 0.066086167,
+          "health": "up",
+          "scrapeInterval": "15s",
+          "scrapeTimeout": "10s"
+        },
+        {
+          "discoveredLabels": {
+            "__address__": "rabbitmq:15692",
+            "__metrics_path__": "/metrics",
+            "__scheme__": "http",
+            "__scrape_interval__": "15s",
+            "__scrape_timeout__": "10s",
+            "job": "rabbitmq"
+          },
+          "labels": {
+            "instance": "rabbitmq:15692",
+            "job": "rabbitmq"
+          },
+          "scrapePool": "rabbitmq",
+          "scrapeUrl": "http://rabbitmq:15692/metrics",
+          "globalUrl": "http://rabbitmq:15692/metrics",
+          "lastError": "",
+          "lastScrape": "2026-10-31T00:19:57.415217215Z",
+          "lastScrapeDuration": 0.026534458,
+          "health": "up",
+          "scrapeInterval": "15s",
+          "scrapeTimeout": "10s"
+        },
+        {
+          "discoveredLabels": {
+            "__address__": "collector:9105",
+            "__metrics_path__": "/metrics",
+            "__scheme__": "http",
+            "__scrape_interval__": "15s",
+            "__scrape_timeout__": "10s",
+            "job": "zulip"
+          },
+          "labels": {
+            "instance": "collector:9105",
+            "job": "zulip"
+          },
+          "scrapePool": "zulip",
+          "scrapeUrl": "http://collector:9105/metrics",
+          "globalUrl": "http://collector:9105/metrics",
+          "lastError": "",
+          "lastScrape": "2026-10-31T00:20:08.673731303Z",
+          "lastScrapeDuration": 0.002939416,
+          "health": "up",
+          "scrapeInterval": "15s",
+          "scrapeTimeout": "10s"
+        }
+      ],
+      "droppedTargets": [],
+      "droppedTargetCounts": {
+        "cadvisor": 0,
+        "prometheus": 0,
+        "rabbitmq": 0,
+        "zulip": 0
+      }
+    }
+  }
+}

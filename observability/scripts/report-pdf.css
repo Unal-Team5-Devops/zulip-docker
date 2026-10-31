@@ -1,0 +1,8 @@
+* { font-family: sans-serif !important; }
+body, p, li, td { color: #202b33 !important; }
+p, li { font-size: 10pt !important; line-height: 1.2 !important; }
+td p { font-size: 9pt !important; }
+h1, h2, h3, h4 { color: #16364b !important; page-break-after: avoid; }
+img { max-width: 100% !important; }
+a { overflow-wrap: anywhere; color: #205779; }
+body > div:first-child > p:first-child { font-size: 26pt !important; color: #16364b !important; }

@@ -1,0 +1,104 @@
+{
+  "docker_version": "29.3.1",
+  "architecture": "aarch64",
+  "cpus": 11,
+  "memory_bytes": 8216915968,
+  "containers": [
+    {
+      "name": "zulip-docker-pipeline-zulip-1",
+      "image": "ghcr.io/unal-team5-devops/zulip-docker:sha-2699602",
+      "image_id": "sha256:8377ab106a8f12b72704fb601d6c6e2c0820a9d3aaed65ed5c4b5f7754ce20fd",
+      "state": "running",
+      "health": "healthy",
+      "started_at": "2026-10-30T23:58:38.546816629Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-alert-receiver-1",
+      "image": "zulip-docker-pipeline-alert-receiver",
+      "image_id": "sha256:198b9f5c13402f4b2462f2ae444dfc7f12999801e6773d9582e83b36fcafe8a1",
+      "state": "running",
+      "health": null,
+      "started_at": "2026-10-30T23:49:10.962010338Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-collector-1",
+      "image": "zulip-docker-pipeline-collector",
+      "image_id": "sha256:3e8010681c559fa2a4db4c18df7a1eab6ec0d8bc16c924c7fe7a2176b20158e6",
+      "state": "running",
+      "health": null,
+      "started_at": "2026-10-30T23:49:10.976493463Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-gateway-1",
+      "image": "nginx:1.27-alpine",
+      "image_id": "sha256:96868d9fa38f469a86d2f25787e43ee9ad330339d30be260aa9f5a338bb03751",
+      "state": "running",
+      "health": null,
+      "started_at": "2026-10-30T23:58:39.050245462Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-alertmanager-1",
+      "image": "prom/alertmanager:v0.28.1",
+      "image_id": "sha256:d1950c730ae9121fe5ad7b7313be63a26f4a075087d2190a31fd9261f7767a44",
+      "state": "running",
+      "health": null,
+      "started_at": "2026-10-30T23:28:26.044986262Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-memcached-1",
+      "image": "memcached:1.6-alpine",
+      "image_id": "sha256:defdcf9518f8b6888f59edc0def29850b688bef32db5ccf3390b5a18128abdee",
+      "state": "running",
+      "health": "healthy",
+      "started_at": "2026-10-30T23:28:26.048205304Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-redis-1",
+      "image": "redis:7-alpine",
+      "image_id": "sha256:c90c016450904cc9c63d38100c04c72554fcc983e257f1637ab451afaf32da7b",
+      "state": "running",
+      "health": "healthy",
+      "started_at": "2026-10-30T23:28:26.049276095Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-rabbitmq-1",
+      "image": "rabbitmq:4.2",
+      "image_id": "sha256:e62f3f0c36e920cdeb9544b78e54a55c8eaf8ece3196f60dc3eb23a2896b829a",
+      "state": "running",
+      "health": "healthy",
+      "started_at": "2026-10-30T23:28:16.945039549Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-grafana-1",
+      "image": "grafana/grafana:11.6.0",
+      "image_id": "sha256:bfadbbcb25fd75c30c295843f1a861414f46c080f0f1d0c5cd93843c88edabcf",
+      "state": "running",
+      "health": null,
+      "started_at": "2026-10-30T23:27:21.254385343Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-database-1",
+      "image": "zulip/zulip-postgresql:14",
+      "image_id": "sha256:1dfb4ca541598f8a0c0c309b0cafc6784dac2e23bb3a494699f98ce43e33bbbc",
+      "state": "running",
+      "health": "healthy",
+      "started_at": "2026-10-30T23:27:21.245369718Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-prometheus-1",
+      "image": "prom/prometheus:v3.2.1",
+      "image_id": "sha256:bddbcb4cc90686ddf7ef05b64eeafe557224549ae93b68115bb27d15a698081a",
+      "state": "running",
+      "health": null,
+      "started_at": "2026-10-30T23:18:42.950703797Z"
+    },
+    {
+      "name": "zulip-docker-pipeline-cadvisor-1",
+      "image": "ghcr.io/google/cadvisor:0.55.1",
+      "image_id": "sha256:4fa220428d11723aff19d2970128f60b548e6454a87cb17e6eb8798f8cdac741",
+      "state": "running",
+      "health": "healthy",
+      "started_at": "2026-10-30T23:17:41.28471638Z"
+    }
+  ]
+}

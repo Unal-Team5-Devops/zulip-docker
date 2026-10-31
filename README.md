@@ -54,6 +54,10 @@ cd terraform && terraform init && terraform apply
 
 El workflow `.github/workflows/terraform.yml` corre fmt, validate, tflint, checkov, Trivy, `terraform plan` con políticas OPA (conftest) y una prueba de idempotencia (apply, segundo plan sin cambios y destroy).
 
+## Observabilidad y SRE (entrega 3)
+
+[`observability/`](observability/README.md) incorpora Grafana, Prometheus, alertas por burn rate, dos SLOs sobre 30 días, presupuesto de error, carga reproducible y un runbook para caída de PostgreSQL. Los manifiestos extienden el Compose original; las instrucciones, pruebas y evidencias están en ese directorio.
+
 ## Procedencia y licencias
 
 Zulip y docker-zulip son Apache-2.0. El Dockerfile está modelado sobre el de [zulip/docker-zulip](https://github.com/zulip/docker-zulip).
