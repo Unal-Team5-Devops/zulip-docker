@@ -30,6 +30,6 @@ La instancia de laboratorio no contiene una organización creada. Se verificaron
 
 El colector procesa las líneas nuevas del gateway. Una interrupción del colector puede dejar peticiones sin contabilizar; las alertas de telemetría y la cobertura temporal permiten advertir ese límite, pero no reconstruyen los datos perdidos. El porcentaje de cobertura del dashboard describe muestras existentes, no disponibilidad mensual.
 
-La validación local comprobó 33 reglas, cuatro escenarios de Prometheus, tres pruebas del lector y clasificador, la configuración de Alertmanager, Compose, sintaxis Python y shell, YAML y las 32 expresiones del dashboard contra Prometheus. No se ejecutó el workflow en GitHub y no se crearon commits. `validation.log` conserva la salida de las comprobaciones.
+La validación local comprobó 33 reglas, cuatro escenarios de Prometheus, tres pruebas del lector y clasificador, la configuración de Alertmanager, Compose, sintaxis Python y shell, YAML y las 32 expresiones del dashboard contra Prometheus. `validation.log` conserva la salida de las comprobaciones.
 
 Como seguimiento del ejercicio, el equipo debe asignar una persona responsable y una fecha a la verificación autenticada con usuarios, al canal de guardia, a la rotación de logs y a la reducción del punto único de fallo de PostgreSQL. Estas mejoras no se presentan como implementadas. El consumo deliberado de presupuesto obliga a aplicar la congelación de cambios no críticos definida en la política, aunque las respuestas HTTP ya se hayan recuperado.
