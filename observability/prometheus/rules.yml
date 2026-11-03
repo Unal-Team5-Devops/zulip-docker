@@ -1,0 +1,166 @@
+groups:
+  - name: zulip-slo
+    interval: 15s
+    rules:
+      - record: zulip:sli_error_ratio:5m
+        expr: (sum(rate(zulip_http_requests_total{status_class="5xx"}[5m])) / sum(rate(zulip_http_requests_total[5m]))) and (sum(rate(zulip_http_requests_total[5m])) > 0)
+        labels:
+          slo: "availability"
+      - record: zulip:sli_error_ratio:5m
+        expr: clamp_min(1 - sum(rate(zulip_http_request_duration_seconds_bucket{le="0.5"}[5m])) / sum(rate(zulip_http_request_duration_seconds_count[5m])), 0) and (sum(rate(zulip_http_request_duration_seconds_count[5m])) > 0)
+        labels:
+          slo: "latency"
+      - record: zulip:slo_burn_rate:5m
+        expr: zulip:sli_error_ratio:5m{slo="availability"} / 0.01
+        labels:
+          slo: "availability"
+      - record: zulip:slo_burn_rate:5m
+        expr: zulip:sli_error_ratio:5m{slo="latency"} / 0.05
+        labels:
+          slo: "latency"
+      - record: zulip:sli_error_ratio:30m
+        expr: (sum(rate(zulip_http_requests_total{status_class="5xx"}[30m])) / sum(rate(zulip_http_requests_total[30m]))) and (sum(rate(zulip_http_requests_total[30m])) > 0)
+        labels:
+          slo: "availability"
+      - record: zulip:sli_error_ratio:30m
+        expr: clamp_min(1 - sum(rate(zulip_http_request_duration_seconds_bucket{le="0.5"}[30m])) / sum(rate(zulip_http_request_duration_seconds_count[30m])), 0) and (sum(rate(zulip_http_request_duration_seconds_count[30m])) > 0)
+        labels:
+          slo: "latency"
+      - record: zulip:slo_burn_rate:30m
+        expr: zulip:sli_error_ratio:30m{slo="availability"} / 0.01
+        labels:
+          slo: "availability"
+      - record: zulip:slo_burn_rate:30m
+        expr: zulip:sli_error_ratio:30m{slo="latency"} / 0.05
+        labels:
+          slo: "latency"
+      - record: zulip:sli_error_ratio:1h
+        expr: (sum(rate(zulip_http_requests_total{status_class="5xx"}[1h])) / sum(rate(zulip_http_requests_total[1h]))) and (sum(rate(zulip_http_requests_total[1h])) > 0)
+        labels:
+          slo: "availability"
+      - record: zulip:sli_error_ratio:1h
+        expr: clamp_min(1 - sum(rate(zulip_http_request_duration_seconds_bucket{le="0.5"}[1h])) / sum(rate(zulip_http_request_duration_seconds_count[1h])), 0) and (sum(rate(zulip_http_request_duration_seconds_count[1h])) > 0)
+        labels:
+          slo: "latency"
+      - record: zulip:slo_burn_rate:1h
+        expr: zulip:sli_error_ratio:1h{slo="availability"} / 0.01
+        labels:
+          slo: "availability"
+      - record: zulip:slo_burn_rate:1h
+        expr: zulip:sli_error_ratio:1h{slo="latency"} / 0.05
+        labels:
+          slo: "latency"
+      - record: zulip:sli_error_ratio:6h
+        expr: (sum(rate(zulip_http_requests_total{status_class="5xx"}[6h])) / sum(rate(zulip_http_requests_total[6h]))) and (sum(rate(zulip_http_requests_total[6h])) > 0)
+        labels:
+          slo: "availability"
+      - record: zulip:sli_error_ratio:6h
+        expr: clamp_min(1 - sum(rate(zulip_http_request_duration_seconds_bucket{le="0.5"}[6h])) / sum(rate(zulip_http_request_duration_seconds_count[6h])), 0) and (sum(rate(zulip_http_request_duration_seconds_count[6h])) > 0)
+        labels:
+          slo: "latency"
+      - record: zulip:slo_burn_rate:6h
+        expr: zulip:sli_error_ratio:6h{slo="availability"} / 0.01
+        labels:
+          slo: "availability"
+      - record: zulip:slo_burn_rate:6h
+        expr: zulip:sli_error_ratio:6h{slo="latency"} / 0.05
+        labels:
+          slo: "latency"
+      - record: zulip:sli_error_ratio:3d
+        expr: (sum(rate(zulip_http_requests_total{status_class="5xx"}[3d])) / sum(rate(zulip_http_requests_total[3d]))) and (sum(rate(zulip_http_requests_total[3d])) > 0)
+        labels:
+          slo: "availability"
+      - record: zulip:sli_error_ratio:3d
+        expr: clamp_min(1 - sum(rate(zulip_http_request_duration_seconds_bucket{le="0.5"}[3d])) / sum(rate(zulip_http_request_duration_seconds_count[3d])), 0) and (sum(rate(zulip_http_request_duration_seconds_count[3d])) > 0)
+        labels:
+          slo: "latency"
+      - record: zulip:slo_burn_rate:3d
+        expr: zulip:sli_error_ratio:3d{slo="availability"} / 0.01
+        labels:
+          slo: "availability"
+      - record: zulip:slo_burn_rate:3d
+        expr: zulip:sli_error_ratio:3d{slo="latency"} / 0.05
+        labels:
+          slo: "latency"
+      - record: zulip:sli_error_ratio:30d
+        expr: (sum(rate(zulip_http_requests_total{status_class="5xx"}[30d])) / sum(rate(zulip_http_requests_total[30d]))) and (sum(rate(zulip_http_requests_total[30d])) > 0)
+        labels:
+          slo: "availability"
+      - record: zulip:sli_error_ratio:30d
+        expr: clamp_min(1 - sum(rate(zulip_http_request_duration_seconds_bucket{le="0.5"}[30d])) / sum(rate(zulip_http_request_duration_seconds_count[30d])), 0) and (sum(rate(zulip_http_request_duration_seconds_count[30d])) > 0)
+        labels:
+          slo: "latency"
+      - record: zulip:slo_burn_rate:30d
+        expr: zulip:sli_error_ratio:30d{slo="availability"} / 0.01
+        labels:
+          slo: "availability"
+      - record: zulip:slo_burn_rate:30d
+        expr: zulip:sli_error_ratio:30d{slo="latency"} / 0.05
+        labels:
+          slo: "latency"
+      - record: zulip:slo_compliance:30d
+        expr: 1 - zulip:sli_error_ratio:30d
+      - record: zulip:error_budget_remaining:ratio
+        expr: 1 - zulip:slo_burn_rate:30d
+      - record: zulip:telemetry_coverage:ratio
+        expr: clamp_max(sum(count_over_time(up{job="zulip"}[30d])) * 15 / 2592000, 1)
+      - alert: ZulipErrorBudgetFastBurn
+        expr: (zulip:slo_burn_rate:1h > 14.4) and on(slo) (zulip:slo_burn_rate:5m > 14.4)
+        for: 2m
+        labels:
+          severity: critical
+          service: zulip
+        annotations:
+          summary: "Consumo rápido del presupuesto de error de {{ $labels.slo }}"
+          runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
+          description: "Consultar el dashboard zulip-sre, comprobar dependencias y seguir el runbook. Las ventanas cortas de un despliegue nuevo todavía no representan 30 días."
+      - alert: ZulipErrorBudgetSlowBurn
+        expr: (zulip:slo_burn_rate:6h > 6) and on(slo) (zulip:slo_burn_rate:30m > 6)
+        for: 5m
+        labels:
+          severity: critical
+          service: zulip
+        annotations:
+          summary: "Consumo sostenido del presupuesto de {{ $labels.slo }}"
+          runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
+          description: "Consultar el dashboard zulip-sre, comprobar dependencias y seguir el runbook. Las ventanas cortas de un despliegue nuevo todavía no representan 30 días."
+      - alert: ZulipErrorBudgetTicket
+        expr: (zulip:slo_burn_rate:3d > 1) and on(slo) (zulip:slo_burn_rate:6h > 1)
+        for: 15m
+        labels:
+          severity: warning
+          service: zulip
+        annotations:
+          summary: "El presupuesto de {{ $labels.slo }} se agota antes de 30 días"
+          runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
+          description: "Consultar el dashboard zulip-sre, comprobar dependencias y seguir el runbook. Las ventanas cortas de un despliegue nuevo todavía no representan 30 días."
+      - alert: ZulipTelemetryMissing
+        expr: absent(up{job="zulip"}) or (up{job="zulip"} == 0)
+        for: 2m
+        labels:
+          severity: critical
+          service: zulip
+        annotations:
+          summary: "No hay telemetría del gateway ni de las dependencias"
+          runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
+          description: "Consultar el dashboard zulip-sre, comprobar dependencias y seguir el runbook. Las ventanas cortas de un despliegue nuevo todavía no representan 30 días."
+      - alert: ZulipDependencyUnavailable
+        expr: zulip_dependency_up == 0
+        for: 2m
+        labels:
+          severity: warning
+          service: zulip
+        annotations:
+          summary: "La dependencia {{ $labels.dependency }} no responde"
+          runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
+          description: "Consultar el dashboard zulip-sre, comprobar dependencias y seguir el runbook. Las ventanas cortas de un despliegue nuevo todavía no representan 30 días."
+      - alert: ZulipContainerMetricsMissing
+        expr: absent(up{job="cadvisor"}) or (up{job="cadvisor"} == 0)
+        for: 5m
+        labels:
+          severity: warning
+          service: zulip
+        annotations:
+          summary: "No hay métricas de recursos de contenedores"
+          runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
+          description: "Consultar el dashboard zulip-sre, comprobar dependencias y seguir el runbook. Las ventanas cortas de un despliegue nuevo todavía no representan 30 días."

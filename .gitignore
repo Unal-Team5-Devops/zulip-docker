@@ -13,3 +13,7 @@ crash.*.log
 # terraform.tfvars puede tener datos locales; solo se versiona el ejemplo.
 *.tfvars
 !terraform.tfvars.example
+
+observability/.local/
+__pycache__/
+*.pyc

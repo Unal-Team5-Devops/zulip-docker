@@ -1,0 +1,23 @@
+name: Observability
+on:
+  pull_request:
+    paths: ["observability/**", "docker-compose.yml", ".github/workflows/observability.yml"]
+  push:
+    branches: [main]
+    paths: ["observability/**", "docker-compose.yml", ".github/workflows/observability.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: pip install -r observability/collector/requirements.txt yamllint
+      - run: cp .env.example .env
+      - run: yamllint -c .yamllint.yml observability .github/workflows/observability.yml
+      - run: ./observability/scripts/validate.sh
+      - run: python -m compileall -q observability

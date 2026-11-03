@@ -1,0 +1,71 @@
+rule_files: [../prometheus/rules.yml]
+evaluation_interval: 15s
+tests:
+  - name: nominal-no-burn
+    interval: 15s
+    input_series:
+      - series: 'zulip_http_requests_total{route="api",status_class="2xx"}'
+        values: '0+75x480'
+      - series: 'zulip_http_requests_total{route="api",status_class="5xx"}'
+        values: '0+0x480'
+      - series: 'zulip_http_request_duration_seconds_count{route="api",status_class="2xx"}'
+        values: '0+75x480'
+      - series: 'zulip_http_request_duration_seconds_bucket{route="api",status_class="2xx",le="0.5"}'
+        values: '0+75x480'
+    promql_expr_test:
+      - expr: 'zulip:slo_burn_rate:5m{slo="availability"}'
+        eval_time: 2h
+        exp_samples:
+          - labels: 'zulip:slo_burn_rate:5m{slo="availability"}'
+            value: 0
+      - expr: 'count(ALERTS{alertname=~"ZulipErrorBudget.*",alertstate="firing"}) or vector(0)'
+        eval_time: 2h
+        exp_samples:
+          - labels: '{}'
+            value: 0
+  - name: sustained-error-and-latency-burn
+    interval: 15s
+    input_series:
+      - series: 'zulip_http_requests_total{route="api",status_class="2xx"}'
+        values: '0+60x480'
+      - series: 'zulip_http_requests_total{route="api",status_class="5xx"}'
+        values: '0+15x480'
+      - series: 'zulip_http_request_duration_seconds_count{route="api"}'
+        values: '0+75x480'
+      - series: 'zulip_http_request_duration_seconds_bucket{route="api",le="0.5"}'
+        values: '0+15x480'
+    promql_expr_test:
+      - expr: 'zulip:slo_burn_rate:5m{slo="availability"}'
+        eval_time: 2h
+        exp_samples:
+          - labels: 'zulip:slo_burn_rate:5m{slo="availability"}'
+            value: 20
+      - expr: 'count(ALERTS{alertname="ZulipErrorBudgetFastBurn",alertstate="firing"})'
+        eval_time: 2h
+        exp_samples:
+          - labels: '{}'
+            value: 2
+  - name: no-traffic-does-not-claim-compliance
+    interval: 15s
+    input_series:
+      - series: 'zulip_http_requests_total{route="api",status_class="2xx"}'
+        values: '0+0x80'
+      - series: 'zulip_http_requests_total{route="api",status_class="5xx"}'
+        values: '0+0x80'
+    promql_expr_test:
+      - expr: 'zulip:slo_compliance:30d'
+        eval_time: 20m
+        exp_samples: []
+  - name: short-spike-does-not-page
+    interval: 15s
+    input_series:
+      - series: 'zulip_http_requests_total{route="api",status_class="2xx"}'
+        values: '0+0x4'
+      - series: 'zulip_http_requests_total{route="api",status_class="5xx"}'
+        values: '0+75x4'
+    promql_expr_test:
+      - expr: 'count(ALERTS{alertname="ZulipErrorBudgetFastBurn",alertstate="firing"}) or vector(0)'
+        eval_time: 1m
+        exp_samples:
+          - labels: '{}'
+            value: 0

@@ -1,0 +1,24 @@
+Checking /work/prometheus/rules.yml
+  SUCCESS: 33 rules found
+
+  SUCCESS
+
+Checking '/config/alertmanager.yml'  SUCCESS
+Found:
+ - global config
+ - route
+ - 1 inhibit rules
+ - 1 receivers
+ - 0 templates
+
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK
+
+Dashboard: 32 expresiones consultadas contra Prometheus, sin errores.
+YAML: yamllint correcto.
+Python: compileall correcto.
+Shell: bash -n correcto.
+Git: diff --check correcto.
