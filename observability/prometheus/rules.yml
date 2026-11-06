@@ -11,7 +11,7 @@ groups:
         labels:
           slo: "latency"
       - record: zulip:slo_burn_rate:5m
-        expr: zulip:sli_error_ratio:5m{slo="availability"} / 0.01
+        expr: zulip:sli_error_ratio:5m{slo="availability"} / 0.05
         labels:
           slo: "availability"
       - record: zulip:slo_burn_rate:5m
@@ -27,7 +27,7 @@ groups:
         labels:
           slo: "latency"
       - record: zulip:slo_burn_rate:30m
-        expr: zulip:sli_error_ratio:30m{slo="availability"} / 0.01
+        expr: zulip:sli_error_ratio:30m{slo="availability"} / 0.05
         labels:
           slo: "availability"
       - record: zulip:slo_burn_rate:30m
@@ -43,7 +43,7 @@ groups:
         labels:
           slo: "latency"
       - record: zulip:slo_burn_rate:1h
-        expr: zulip:sli_error_ratio:1h{slo="availability"} / 0.01
+        expr: zulip:sli_error_ratio:1h{slo="availability"} / 0.05
         labels:
           slo: "availability"
       - record: zulip:slo_burn_rate:1h
@@ -59,7 +59,7 @@ groups:
         labels:
           slo: "latency"
       - record: zulip:slo_burn_rate:6h
-        expr: zulip:sli_error_ratio:6h{slo="availability"} / 0.01
+        expr: zulip:sli_error_ratio:6h{slo="availability"} / 0.05
         labels:
           slo: "availability"
       - record: zulip:slo_burn_rate:6h
@@ -75,7 +75,7 @@ groups:
         labels:
           slo: "latency"
       - record: zulip:slo_burn_rate:3d
-        expr: zulip:sli_error_ratio:3d{slo="availability"} / 0.01
+        expr: zulip:sli_error_ratio:3d{slo="availability"} / 0.05
         labels:
           slo: "availability"
       - record: zulip:slo_burn_rate:3d
@@ -91,7 +91,7 @@ groups:
         labels:
           slo: "latency"
       - record: zulip:slo_burn_rate:30d
-        expr: zulip:sli_error_ratio:30d{slo="availability"} / 0.01
+        expr: zulip:sli_error_ratio:30d{slo="availability"} / 0.05
         labels:
           slo: "availability"
       - record: zulip:slo_burn_rate:30d
@@ -134,6 +134,19 @@ groups:
           summary: "El presupuesto de {{ $labels.slo }} se agota antes de 30 días"
           runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
           description: "Consultar el dashboard zulip-sre, comprobar dependencias y seguir el runbook. Las ventanas cortas de un despliegue nuevo todavía no representan 30 días."
+      # Alerta de síntoma, independiente de la meta del SLO. Con SLO de 95% una
+      # caída total da burn rate 20 y FastBurn tarda unos 43 min en cumplir su
+      # ventana de 1 h con tráfico estable; esta alerta avisa en unos 3 min.
+      - alert: ZulipHighErrorRatio
+        expr: zulip:sli_error_ratio:5m{slo="availability"} > 0.2
+        for: 2m
+        labels:
+          severity: critical
+          service: zulip
+        annotations:
+          summary: "Más del 20% de las peticiones a Zulip devuelve 5xx"
+          runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
+          description: "Consultar el dashboard zulip-sre, comprobar dependencias y seguir el runbook. Es una alerta de síntoma: no espera a que el presupuesto se consuma."
       - alert: ZulipTelemetryMissing
         expr: absent(up{job="zulip"}) or (up{job="zulip"} == 0)
         for: 2m

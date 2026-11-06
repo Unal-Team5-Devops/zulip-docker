@@ -16,10 +16,10 @@ Ventana móvil W = 30 días = 2 592 000 segundos. N(W) es el número de respuest
 
 | Indicador | Definición | Objetivo | Presupuesto |
 | --- | --- | --- | --- |
-| Disponibilidad HTTP | A(W) = 1 − E(W) / N(W) | A ≥ 0,99 | 0,01 × N(W) respuestas fallidas |
+| Disponibilidad HTTP | A(W) = 1 − E(W) / N(W) | A ≥ 0,95 | 0,05 × N(W) respuestas fallidas |
 | Latencia | L(W) = F(W) / N(W) | L ≥ 0,95; equivale a p95 ≤ 500 ms con la resolución del histograma | 0,05 × N(W) respuestas lentas |
 
-La infraestructura es de instancia única: una meta inicial de 99% permite estudiar fallos y recuperación sin afirmar alta disponibilidad que aún no existe. La meta de 500 ms busca que las consultas cortas y la navegación resulten ágiles. Son acuerdos iniciales del laboratorio, pendientes de recalibrar con un mes de tráfico representativo; no proceden de una línea base mensual medida. La equivalencia del presupuesto de disponibilidad con 432 minutos en 30 días solo es válida si la carga se distribuye uniformemente: el presupuesto implementado cuenta peticiones, no minutos.
+La infraestructura es de instancia única: una meta de 95% permite estudiar fallos y recuperación sin afirmar alta disponibilidad que aún no existe. En la Entrega 3 la meta era 99%; para la Entrega 4 se bajó a 95% al pasar a una sola instancia en AWS que también corre los GameDays. Con 95% el burn rate de una caída total es 1 / 0,05 = 20, todavía mayor que el umbral de FastBurn (14,4), por lo que las alertas conservan sus umbrales; con 90% el máximo sería 10 y FastBurn no podría disparar nunca. La meta de 500 ms busca que las consultas cortas y la navegación resulten ágiles. Son acuerdos iniciales del laboratorio, pendientes de recalibrar con un mes de tráfico representativo; no proceden de una línea base mensual medida. La equivalencia del presupuesto de disponibilidad con 36 horas (2.160 minutos) en 30 días solo es válida si la carga se distribuye uniformemente: el presupuesto implementado cuenta peticiones, no minutos.
 
 Consultas de disponibilidad y latencia, respectivamente:
 
@@ -38,7 +38,7 @@ histogram_quantile(0.95,
   sum by (le) (rate(zulip_http_request_duration_seconds_bucket[5m])))
 ```
 
-Para cada SLO, con fracción permitida b = 0,01 o 0,05, e(W) = fracción observada de fallos o de respuestas lentas:
+Para cada SLO, con fracción permitida b = 0,05 en ambos SLO, e(W) = fracción observada de fallos o de respuestas lentas:
 
 - Burn rate: B(W) = e(W) / b.
 - Presupuesto restante: R(W) = 1 − B(W).
@@ -66,6 +66,7 @@ Un incidente crítico tiene una persona coordinadora y otra a cargo del diagnós
 | --- | --- | --- | --- |
 | FastBurn | B(1h) > 14,4 y B(5m) > 14,4 | 2 min | Incidente crítico; consume aproximadamente 2% del presupuesto mensual en una hora |
 | SlowBurn | B(6h) > 6 y B(30m) > 6 | 5 min | Incidente crítico; consume aproximadamente 5% del presupuesto en seis horas |
+| HighErrorRatio | Errores 5xx en 5 min > 20% | 2 min | Incidente crítico por síntoma; con SLO de 95% detecta una caída total en ~3 min, mientras FastBurn necesita ~43 min de ventana con tráfico estable |
 | Ticket | B(3d) > 1 y B(6h) > 1 | 15 min | Investigación en el siguiente bloque de trabajo |
 
 Las equivalencias de consumo suponen carga aproximadamente uniforme. Las ventanas dobles exigen degradación reciente y sostenida; el `for` evita avisos por muestras aisladas. La configuración no acorta las ventanas para conseguir la evidencia: en un despliegue nuevo, Prometheus usa el historial disponible, por lo que las alertas pueden activarse antes de tener una hora completa.

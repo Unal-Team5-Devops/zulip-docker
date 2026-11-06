@@ -30,7 +30,7 @@
     },
     {
       "id": 2,
-      "title": "Disponibilidad · meta 99%",
+      "title": "Disponibilidad · meta 95%",
       "description": "",
       "type": "stat",
       "datasource": {
@@ -68,7 +68,7 @@
               },
               {
                 "color": "green",
-                "value": 0.99
+                "value": 0.95
               }
             ]
           },
