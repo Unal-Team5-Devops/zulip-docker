@@ -74,6 +74,13 @@ cd /opt/zulip
   /home/zulip/deployments/current/manage.py generate_realm_creation_link
 ```
 
+El entorno no tiene SMTP: Zulip guarda los correos como archivos (`deploy/compose.aws.yml`). Para leer el último, por ejemplo la confirmación de la cuenta al crear la organización, y abrir su enlace:
+
+```bash
+./observability/scripts/compose.sh exec zulip bash -c \
+  'cat "$(ls -t /var/log/zulip/emails/* | head -1)"' | grep -o 'https://[^ ]*confirm[^ ]*'
+```
+
 Contraseña de Grafana (usuario `admin`): `grep GRAFANA_ADMIN_PASSWORD /opt/zulip/.env`.
 
 ## 4. Variables del repositorio para `aws-infra.yml`
