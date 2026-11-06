@@ -70,7 +70,6 @@ python3 observability/scripts/snapshot.py nominal
 ```
 
 `validate.sh` comprueba Compose, reglas Prometheus, casos nominales, consumo sostenido, ausencia de tráfico, un pico corto, configuración de Alertmanager y el lector binario de Memcached. El workflow `.github/workflows/observability.yml` ejecuta estas comprobaciones; un workflow escrito localmente no implica que ya haya corrido en GitHub.
-
 La simulación detiene únicamente PostgreSQL de este proyecto y genera carga durante cuatro minutos. Usar una instancia de laboratorio y conservar el volumen:
 
 ```bash
@@ -78,6 +77,20 @@ La simulación detiene únicamente PostgreSQL de este proyecto y genera carga du
 ```
 
 El `trap` intenta reactivar PostgreSQL incluso si la prueba se interrumpe. Los JSON de `evidence/` contienen valores obtenidos de las API, tiempos y estados de carga. `notifications.log` registra la recepción real de alertas y su resolución. Las capturas muestran Grafana durante tráfico nominal y durante la degradación. El historial del taller no sustituye la ventana de 30 días.
+
+### GameDay
+El GameDay de PostgreSQL conserva por ejecución las capturas, logs, estados y reportes de carga en el directorio del escenario. Siga su flujo controlado y realice la recuperación manual solo después del diagnóstico:
+```bash
+./observability/gameday/postgres-failure/scripts/gameday.sh check
+./observability/gameday/postgres-failure/scripts/gameday.sh inject
+./observability/gameday/postgres-failure/scripts/gameday.sh load 180 5
+# Tras el diagnóstico y la decisión del equipo:
+./observability/gameday/postgres-failure/scripts/gameday.sh recover
+```
+
+La carga GET a `/login/` no modifica datos. Ajuste duración y tasa a los límites documentados del escenario. Los snapshots, logs JSON del gateway, eventos del receptor y reporte de carga quedan bajo `observability/gameday/postgres-failure/evidence/`; el historial del taller no sustituye la ventana de 30 días.
+
+El segundo escenario solicita 100 → 250 RPS y tiene una etapa de respaldo de 350 RPS, con concurrencia y cola acotadas. Mide la tasa realmente entregada y detiene la rampa cuando el gateway supera 1% de 5xx o 500 ms de p95, o cuando el generador llega a su límite. Sus instrucciones y evidencias están en [`gameday/high-traffic/`](gameday/high-traffic/README.md); exige cAdvisor disponible y no reinicia servicios al cerrar la práctica.
 
 ## Informe de Word
 

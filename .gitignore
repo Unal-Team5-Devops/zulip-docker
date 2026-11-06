@@ -17,3 +17,5 @@ crash.*.log
 observability/.local/
 __pycache__/
 *.pyc
+.venv-observability/
+

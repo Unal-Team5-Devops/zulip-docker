@@ -32,7 +32,7 @@ Si no hay telemetría, comprobar primero Prometheus, el colector y el gateway. U
 ./observability/scripts/compose.sh exec -T database \
   psql -U zulip -d zulip -c "SELECT pid, now()-query_start AS duration, state, wait_event_type FROM pg_stat_activity WHERE state <> 'idle' ORDER BY query_start;"
 ./observability/scripts/compose.sh exec -T database df -h /var/lib/postgresql/data
-./observability/scripts/compose.sh stats --no-stream
+docker stats --no-stream
 ```
 
 Buscar contenedor detenido, falta de disco, reinicios por memoria, errores de autenticación y conexiones agotadas. El panel de latencia PostgreSQL mide consultas de diagnóstico y conexión; para encontrar una consulta problemática usar `pg_stat_activity`. No publicar logs con credenciales o contenido de usuarios.
