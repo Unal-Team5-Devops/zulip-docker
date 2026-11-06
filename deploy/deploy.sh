@@ -103,8 +103,17 @@ if [[ ! -f observability/.local/nginx.conf ]] || [[ "$(cat observability/.local/
 fi
 
 # --- 4. Levantar o actualizar ---------------------------------------------------
-log "docker compose up (Compose recrea solo los servicios cuya definición cambió)"
-./observability/scripts/compose.sh up -d --build --remove-orphans --wait --wait-timeout 1200
+# Zulip se despliega con la imagen que publicó el CI en GHCR, nunca construida
+# aquí: docker-compose.yml también declara "build" para uso local, y un
+# "up --build" la reconstruiría en la instancia (25 min y una imagen distinta
+# del artefacto probado). Solo se construyen el colector y el receptor de alertas.
+log "Descargando imágenes (Zulip desde GHCR: $(grep '^ZULIP_IMAGE=' .env | cut -d= -f2-))"
+./observability/scripts/compose.sh pull --quiet --ignore-buildable
+./observability/scripts/compose.sh pull --quiet zulip
+log "Construyendo colector y receptor de alertas"
+./observability/scripts/compose.sh build --quiet collector alert-receiver
+log "docker compose up (Compose recrea solo los servicios cuya definición o imagen cambió)"
+./observability/scripts/compose.sh up -d --no-build --remove-orphans --wait --wait-timeout 1200
 
 # --- 5. Recargas en caliente -----------------------------------------------------
 reloaded=()
