@@ -39,6 +39,6 @@ output "ssm_session_command" {
 }
 
 output "github_plan_role_arn" {
-  description = "Rol que asume aws-infra.yml por OIDC; guardarlo como variable AWS_PLAN_ROLE_ARN del repositorio."
-  value       = aws_iam_role.github_plan.arn
+  description = "Rol que asume aws-infra.yml por OIDC; guardarlo como variable AWS_PLAN_ROLE_ARN del repositorio. Nulo si enable_github_oidc = false."
+  value       = try(aws_iam_role.github_plan[0].arn, null)
 }

@@ -78,6 +78,8 @@ Contraseña de Grafana (usuario `admin`): `grep GRAFANA_ADMIN_PASSWORD /opt/zuli
 
 ## 4. Variables del repositorio para `aws-infra.yml`
 
+> **Hallazgo en la cuenta del equipo:** las cuentas del plan gratuito de AWS pertenecen a una organización cuya SCP niega `iam:CreateOpenIDConnectProvider`, incluso para un usuario con `AdministratorAccess`. En ese caso se aplica con `enable_github_oidc = false`: no se crea el rol y `aws-infra.yml` se omite (su job exige `AWS_PLAN_ROLE_ARN`). El despliegue continuo no depende de OIDC, porque el runner corre dentro de la instancia. En una cuenta de producción, el administrador de la organización habilitaría la acción en la SCP y el plan correría en cada PR.
+
 *Settings → Secrets and variables → Actions → Variables*:
 
 | Variable | Valor |

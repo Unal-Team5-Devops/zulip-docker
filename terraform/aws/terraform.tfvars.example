@@ -11,3 +11,4 @@ admin_cidrs = ["203.0.113.10/32"]
 # aws_region                  = "us-east-2"
 # instance_type               = "m7i-flex.large"
 # create_github_oidc_provider = false  # si la cuenta ya tiene el proveedor OIDC de GitHub
+# enable_github_oidc          = false  # si una SCP de la organización prohíbe crear proveedores OIDC (plan gratuito)

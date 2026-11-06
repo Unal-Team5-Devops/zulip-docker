@@ -31,25 +31,31 @@ resource "aws_iam_instance_profile" "zulip" {
 # GitHub Actions -> AWS con OIDC: sin llaves de acceso guardadas en GitHub.
 # Cada job pide un token firmado por GitHub y AWS lo cambia por credenciales
 # temporales, solo si viene de este repositorio (main o un pull request).
+# Se desactiva con enable_github_oidc = false cuando una SCP de la organización
+# lo prohíbe (caso de las cuentas del plan gratuito de AWS).
 # ---------------------------------------------------------------------------
 resource "aws_iam_openid_connect_provider" "github" {
-  count = var.create_github_oidc_provider ? 1 : 0
+  count = var.enable_github_oidc && var.create_github_oidc_provider ? 1 : 0
 
   url            = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
 }
 
 data "aws_iam_openid_connect_provider" "github" {
-  count = var.create_github_oidc_provider ? 0 : 1
+  count = var.enable_github_oidc && !var.create_github_oidc_provider ? 1 : 0
 
   url = "https://token.actions.githubusercontent.com"
 }
 
 locals {
-  github_oidc_arn = var.create_github_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : data.aws_iam_openid_connect_provider.github[0].arn
+  github_oidc_arn = var.enable_github_oidc ? (
+    var.create_github_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : data.aws_iam_openid_connect_provider.github[0].arn
+  ) : null
 }
 
 data "aws_iam_policy_document" "github_assume" {
+  count = var.enable_github_oidc ? 1 : 0
+
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
 
@@ -79,17 +85,23 @@ data "aws_iam_policy_document" "github_assume" {
 # los ejecuta un integrante con sus credenciales tras revisar el plan del PR:
 # la instancia es el entorno vivo y un reemplazo accidental lo apagaría.
 resource "aws_iam_role" "github_plan" {
+  count = var.enable_github_oidc ? 1 : 0
+
   name                 = "${local.name}-github-plan"
-  assume_role_policy   = data.aws_iam_policy_document.github_assume.json
+  assume_role_policy   = data.aws_iam_policy_document.github_assume[0].json
   max_session_duration = 3600
 }
 
 resource "aws_iam_role_policy_attachment" "github_read_only" {
-  role       = aws_iam_role.github_plan.name
+  count = var.enable_github_oidc ? 1 : 0
+
+  role       = aws_iam_role.github_plan[0].name
   policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }
 
 data "aws_iam_policy_document" "github_state" {
+  count = var.enable_github_oidc ? 1 : 0
+
   statement {
     sid       = "ListStateBucket"
     actions   = ["s3:ListBucket"]
@@ -111,7 +123,9 @@ data "aws_iam_policy_document" "github_state" {
 }
 
 resource "aws_iam_role_policy" "github_state" {
+  count = var.enable_github_oidc ? 1 : 0
+
   name   = "terraform-state"
-  role   = aws_iam_role.github_plan.id
-  policy = data.aws_iam_policy_document.github_state.json
+  role   = aws_iam_role.github_plan[0].id
+  policy = data.aws_iam_policy_document.github_state[0].json
 }

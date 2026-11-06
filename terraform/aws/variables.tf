@@ -74,6 +74,12 @@ variable "admin_cidrs" {
   }
 }
 
+variable "enable_github_oidc" {
+  description = "Crea el acceso de GitHub Actions por OIDC (proveedor y rol de plan). Ponga false si una SCP de la organización de AWS prohíbe iam:CreateOpenIDConnectProvider, como en las cuentas del plan gratuito."
+  type        = bool
+  default     = true
+}
+
 variable "create_github_oidc_provider" {
   description = "Crea el proveedor OIDC de GitHub en la cuenta. Ponga false si la cuenta ya tiene uno para token.actions.githubusercontent.com."
   type        = bool
