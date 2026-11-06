@@ -23,13 +23,14 @@ tests:
         exp_samples:
           - labels: '{}'
             value: 0
+  # 80% de errores: con el SLO de 95% el burn rate es 0,80 / 0,05 = 16 > 14,4.
   - name: sustained-error-and-latency-burn
     interval: 15s
     input_series:
       - series: 'zulip_http_requests_total{route="api",status_class="2xx"}'
-        values: '0+60x480'
-      - series: 'zulip_http_requests_total{route="api",status_class="5xx"}'
         values: '0+15x480'
+      - series: 'zulip_http_requests_total{route="api",status_class="5xx"}'
+        values: '0+60x480'
       - series: 'zulip_http_request_duration_seconds_count{route="api"}'
         values: '0+75x480'
       - series: 'zulip_http_request_duration_seconds_bucket{route="api",le="0.5"}'
@@ -39,12 +40,17 @@ tests:
         eval_time: 2h
         exp_samples:
           - labels: 'zulip:slo_burn_rate:5m{slo="availability"}'
-            value: 20
+            value: 16
       - expr: 'count(ALERTS{alertname="ZulipErrorBudgetFastBurn",alertstate="firing"})'
         eval_time: 2h
         exp_samples:
           - labels: '{}'
             value: 2
+      - expr: 'count(ALERTS{alertname="ZulipHighErrorRatio",alertstate="firing"})'
+        eval_time: 2h
+        exp_samples:
+          - labels: '{}'
+            value: 1
   - name: no-traffic-does-not-claim-compliance
     interval: 15s
     input_series:
