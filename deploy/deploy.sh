@@ -74,26 +74,34 @@ grep -Eq '^GRAFANA_ADMIN_PASSWORD=.{16,}$' .env || set_env GRAFANA_ADMIN_PASSWOR
 
 echo "deploy/compose.aws.yml" > .compose-extra
 
-# Certificado autofirmado con el nombre público (y zulip.localhost para los
-# scripts del GameDay que corren dentro de la instancia).
+# Certificado autofirmado con el nombre público, sus subdominios (cada
+# organización de Zulip usa uno) y zulip.localhost para los scripts del GameDay.
 tls_dir=observability/.local/tls
 install -d -m 700 "$tls_dir"
 tls_changed=false
-if [[ ! -f "$tls_dir/cert.pem" ]] || ! openssl x509 -in "$tls_dir/cert.pem" -noout -ext subjectAltName | grep -q "$HOST_NAME"; then
+if [[ ! -f "$tls_dir/cert.pem" ]] || ! openssl x509 -in "$tls_dir/cert.pem" -noout -ext subjectAltName | grep -qF "*.$HOST_NAME"; then
   log "Generando certificado para $HOST_NAME"
   (umask 077 && openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
     -keyout "$tls_dir/key.pem" -out "$tls_dir/cert.pem" -subj "/CN=$HOST_NAME" \
-    -addext "subjectAltName=DNS:$HOST_NAME,DNS:zulip.localhost,DNS:localhost,IP:127.0.0.1" 2>/dev/null)
+    -addext "subjectAltName=DNS:$HOST_NAME,DNS:*.$HOST_NAME,DNS:zulip.localhost,DNS:localhost,IP:127.0.0.1" 2>/dev/null)
   tls_changed=true
 fi
 
-# Gateway: igual a observability/nginx/nginx.conf, pero con el Host fijo hacia el
-# nombre público de Zulip.
-rendered="$(sed \
-  -e "s|proxy_set_header Host \$http_host;|proxy_set_header Host $HOST;|" \
-  -e "s|proxy_set_header X-Forwarded-Host \$http_host;|proxy_set_header X-Forwarded-Host $HOST;|" \
-  observability/nginx/nginx.conf)"
-grep -q "proxy_set_header Host $HOST;" <<<"$rendered" || fail "No se pudo fijar el Host en la configuración del gateway"
+# Gateway: igual a observability/nginx/nginx.conf, salvo el Host hacia Zulip.
+# Los nombres locales que usan los scripts del GameDay dentro de la instancia
+# (zulip.localhost, localhost, 127.0.0.1) se reescriben al nombre público; el
+# resto pasa intacto, porque Zulip identifica cada organización por su
+# subdominio (devops-team5.<ip>.sslip.io) y valida CSRF contra ese Host.
+host_map="    map \$http_host \$zulip_host {
+        default \$http_host;
+        \"~^(zulip\\.localhost|localhost|127\\.0\\.0\\.1)(:[0-9]+)?\$\" \"$HOST\";
+    }"
+# ENVIRON en lugar de awk -v: -v interpretaría las barras invertidas del regex.
+rendered="$(HOST_MAP="$host_map" awk '/map \$http_upgrade/ { print ENVIRON["HOST_MAP"] } { print }' observability/nginx/nginx.conf \
+  | sed -e 's|proxy_set_header Host \$http_host;|proxy_set_header Host $zulip_host;|' \
+        -e 's|proxy_set_header X-Forwarded-Host \$http_host;|proxy_set_header X-Forwarded-Host $zulip_host;|')"
+grep -q 'proxy_set_header Host \$zulip_host;' <<<"$rendered" && grep -qF "\"$HOST\";" <<<"$rendered" \
+  || fail "No se pudo generar la configuración del gateway"
 nginx_changed=false
 if [[ ! -f observability/.local/nginx.conf ]] || [[ "$(cat observability/.local/nginx.conf)" != "$rendered" ]]; then
   # Se escribe sobre el mismo archivo (mismo inode): el contenedor lo monta como
