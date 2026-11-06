@@ -1,0 +1,91 @@
+name: GameDay
+
+# Ejecuta los escenarios de observability/gameday sobre el entorno AWS, desde
+# la pestaña Actions y sin abrir una terminal en la instancia. Corre en el
+# runner self-hosted de la EC2, sobre /opt/zulip (donde viven .env, el estado
+# de cada ejecución y su evidencia). Cada paso es un job independiente:
+#   check -> inject -> [load] -> status (las veces necesarias) -> recover
+# La recuperación nunca es automática: el equipo decide cuándo lanzarla.
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "Escenario"
+        type: choice
+        options:
+          - postgres-failure
+          - high-traffic
+      action:
+        description: "Paso"
+        type: choice
+        options:
+          - check
+          - inject
+          - load
+          - status
+          - recover
+      load_seconds:
+        description: "Solo load (postgres-failure): duración en segundos (15-300)"
+        default: "180"
+      load_rps:
+        description: "Solo load (postgres-failure): peticiones por segundo (hasta 10)"
+        default: "5"
+
+permissions:
+  contents: read
+
+# Un paso del GameDay a la vez y nunca en paralelo con un despliegue: ambos
+# usan el mismo runner y la misma pila.
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: false
+
+jobs:
+  gameday:
+    name: ${{ inputs.scenario }} · ${{ inputs.action }}
+    runs-on: [self-hosted, linux, aws]
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: /opt/zulip
+    env:
+      SCENARIO: ${{ inputs.scenario }}
+      ACTION: ${{ inputs.action }}
+      LOAD_SECONDS: ${{ inputs.load_seconds }}
+      LOAD_RPS: ${{ inputs.load_rps }}
+    steps:
+      - name: Validar la combinación
+        run: |
+          if [[ "$ACTION" == load && "$SCENARIO" != postgres-failure ]]; then
+            echo "::error::load solo existe en postgres-failure; en high-traffic la carga es parte de inject."
+            exit 1
+          fi
+
+      - name: Ejecutar gameday.sh ${{ inputs.action }}
+        run: |
+          script="./observability/gameday/$SCENARIO/scripts/gameday.sh"
+          {
+            echo "### GameDay · $SCENARIO · $ACTION"
+            echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          set +e
+          if [[ "$ACTION" == load ]]; then
+            "$script" load "$LOAD_SECONDS" "$LOAD_RPS" 2>&1 | tee /tmp/gameday-output.txt
+          else
+            "$script" "$ACTION" 2>&1 | tee /tmp/gameday-output.txt
+          fi
+          code=${PIPESTATUS[0]}
+          set -e
+          tail -n 60 /tmp/gameday-output.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          exit "$code"
+
+      - name: Guardar evidencia del escenario
+        if: always() && inputs.action != 'check'
+        uses: actions/upload-artifact@v7
+        with:
+          name: gameday-${{ inputs.scenario }}-${{ inputs.action }}-${{ github.run_number }}
+          path: /opt/zulip/observability/gameday/${{ inputs.scenario }}/evidence/
+          if-no-files-found: ignore
+          retention-days: 30
