@@ -1,6 +1,6 @@
 # Runbook: PostgreSQL no disponible o errores HTTP sostenidos
 
-Servicio: Zulip. Severidad: crítica si `ZulipErrorBudgetFastBurn` o `ZulipErrorBudgetSlowBurn` está firing y hay impacto HTTP. Una sonda fallida por sí sola abre investigación, no demuestra caída de toda la aplicación.
+Servicio: Zulip. Severidad: crítica si `ZulipHighErrorRatio`, `ZulipErrorBudgetFastBurn` o `ZulipErrorBudgetSlowBurn` está firing y hay impacto HTTP. Una sonda fallida por sí sola abre investigación, no demuestra caída de toda la aplicación.
 
 ## 1. Reconocer y delimitar
 
