@@ -17,6 +17,11 @@ crash.*.log
 observability/.local/
 __pycache__/
 *.pyc
+<<<<<<< HEAD
+.venv-observability/
+
+=======
 
 # Archivos de Compose propios del entorno (los crea deploy/deploy.sh en AWS)
 .compose-extra
+>>>>>>> origin/main
