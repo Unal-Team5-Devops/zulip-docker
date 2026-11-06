@@ -9,6 +9,15 @@
 #   hacia el nombre público, así los scripts del GameDay (que usan
 #   zulip.localhost:8080) también llegan a Zulip.
 services:
+  # El laboratorio no tiene servidor SMTP: Zulip escribe cada correo (por
+  # ejemplo, la confirmación al crear la organización) como archivo en
+  # /var/log/zulip/emails, según la documentación de Zulip para prototipos.
+  # En producción se usaría Amazon SES con SETTING_EMAIL_HOST y el secreto
+  # zulip__email_password.
+  zulip:
+    environment:
+      SETTING_EMAIL_BACKEND: django.core.mail.backends.filebased.EmailBackend
+      SETTING_EMAIL_FILE_PATH: /var/log/zulip/emails
   gateway:
     ports: !override ["0.0.0.0:8080:8080"]
     volumes: !override
