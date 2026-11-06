@@ -1,0 +1,13 @@
+# Copiar a terraform.tfvars (no se versiona) y completar.
+
+# Bucket creado por scripts/bootstrap-state.sh.
+state_bucket = "zulip-tfstate-123456789012"
+
+# IP públicas del equipo con /32 (consultar con: curl -s https://checkip.amazonaws.com).
+# Son las únicas que verán Grafana, Prometheus y Alertmanager.
+admin_cidrs = ["203.0.113.10/32"]
+
+# Opcionales:
+# aws_region                  = "us-east-2"
+# instance_type               = "m7i-flex.large"
+# create_github_oidc_provider = false  # si la cuenta ya tiene el proveedor OIDC de GitHub
