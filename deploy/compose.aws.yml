@@ -1,0 +1,23 @@
+# Ajustes del entorno AWS sobre docker-compose.yml + observability/compose.yml.
+# Lo incluye observability/scripts/compose.sh cuando .compose-extra lo lista.
+#
+# - Los puertos de gateway y paneles escuchan en todas las interfaces; quién
+#   puede llegar lo decide el security group (8080 público, paneles solo para
+#   las IP del equipo). Zulip sigue publicando 80/443 solo en 127.0.0.1: el
+#   único camino público es el gateway medido.
+# - El gateway usa una configuración generada por deploy.sh que fija el Host
+#   hacia el nombre público, así los scripts del GameDay (que usan
+#   zulip.localhost:8080) también llegan a Zulip.
+services:
+  gateway:
+    ports: !override ["0.0.0.0:8080:8080"]
+    volumes: !override
+      - ./observability/.local/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./observability/.local/tls:/etc/nginx/tls:ro
+      - gateway-logs:/var/log/telemetry
+  grafana:
+    ports: !override ["0.0.0.0:3000:3000"]
+  prometheus:
+    ports: !override ["0.0.0.0:9090:9090"]
+  alertmanager:
+    ports: !override ["0.0.0.0:9093:9093"]

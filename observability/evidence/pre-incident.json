@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-10-31T00:10:10.848979+00:00",
+  "captured_at": "2026-11-03T23:59:57.120328+00:00",
   "queries": {
     "sum(rate(zulip_postgres_stat_total{operation=~\"commit|rollback\"}[5m]))": {
       "status": "success",
@@ -9,8 +9,8 @@
           {
             "metric": {},
             "value": [
-              1793405410.863,
-              "4.1542985059963655"
+              1793750397.157,
+              "3.4175438596491223"
             ]
           }
         ]
@@ -27,8 +27,8 @@
               "job": "zulip"
             },
             "value": [
-              1793405410.866,
-              "0.17"
+              1793750397.159,
+              "0.22"
             ]
           }
         ]
@@ -46,8 +46,8 @@
               "state": "active"
             },
             "value": [
-              1793405410.869,
-              "0.0009765625"
+              1793750397.161,
+              "0.001953125"
             ]
           }
         ]
@@ -63,8 +63,8 @@
               "__name__": "zulip:telemetry_coverage:ratio"
             },
             "value": [
-              1793405410.872,
-              "0.0011631944444444443"
+              1793750397.162,
+              "0.0005613425925925926"
             ]
           }
         ]
@@ -78,22 +78,22 @@
           {
             "metric": {
               "__name__": "up",
-              "instance": "cadvisor:8080",
-              "job": "cadvisor"
+              "instance": "rabbitmq:15692",
+              "job": "rabbitmq"
             },
             "value": [
-              1793405410.873,
+              1793750397.164,
               "1"
             ]
           },
           {
             "metric": {
               "__name__": "up",
-              "instance": "collector:9105",
-              "job": "zulip"
+              "instance": "cadvisor:8080",
+              "job": "cadvisor"
             },
             "value": [
-              1793405410.873,
+              1793750397.164,
               "1"
             ]
           },
@@ -104,18 +104,18 @@
               "job": "prometheus"
             },
             "value": [
-              1793405410.873,
+              1793750397.164,
               "1"
             ]
           },
           {
             "metric": {
               "__name__": "up",
-              "instance": "rabbitmq:15692",
-              "job": "rabbitmq"
+              "instance": "collector:9105",
+              "job": "zulip"
             },
             "value": [
-              1793405410.873,
+              1793750397.164,
               "1"
             ]
           }
@@ -135,19 +135,7 @@
               "job": "zulip"
             },
             "value": [
-              1793405410.875,
-              "1"
-            ]
-          },
-          {
-            "metric": {
-              "__name__": "zulip_dependency_up",
-              "dependency": "memcached",
-              "instance": "collector:9105",
-              "job": "zulip"
-            },
-            "value": [
-              1793405410.875,
+              1793750397.165,
               "1"
             ]
           },
@@ -159,19 +147,7 @@
               "job": "zulip"
             },
             "value": [
-              1793405410.875,
-              "1"
-            ]
-          },
-          {
-            "metric": {
-              "__name__": "zulip_dependency_up",
-              "dependency": "rabbitmq",
-              "instance": "collector:9105",
-              "job": "zulip"
-            },
-            "value": [
-              1793405410.875,
+              1793750397.165,
               "1"
             ]
           },
@@ -183,7 +159,31 @@
               "job": "zulip"
             },
             "value": [
-              1793405410.875,
+              1793750397.165,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "zulip_dependency_up",
+              "dependency": "memcached",
+              "instance": "collector:9105",
+              "job": "zulip"
+            },
+            "value": [
+              1793750397.165,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "zulip_dependency_up",
+              "dependency": "rabbitmq",
+              "instance": "collector:9105",
+              "job": "zulip"
+            },
+            "value": [
+              1793750397.165,
               "1"
             ]
           }
@@ -201,8 +201,8 @@
               "slo": "availability"
             },
             "value": [
-              1793405410.876,
-              "0.9993346640053227"
+              1793750397.166,
+              "0.9807692307692307"
             ]
           },
           {
@@ -211,8 +211,8 @@
               "slo": "latency"
             },
             "value": [
-              1793405410.876,
-              "1"
+              1793750397.166,
+              "0.9230769230769231"
             ]
           }
         ]
@@ -229,8 +229,8 @@
               "slo": "availability"
             },
             "value": [
-              1793405410.879,
-              "0.9334664005322688"
+              1793750397.168,
+              "-0.9230769230769231"
             ]
           },
           {
@@ -239,8 +239,8 @@
               "slo": "latency"
             },
             "value": [
-              1793405410.879,
-              "1"
+              1793750397.168,
+              "-0.5384615384615374"
             ]
           }
         ]
@@ -257,7 +257,7 @@
               "slo": "availability"
             },
             "value": [
-              1793405410.881,
+              1793750397.17,
               "0"
             ]
           },
@@ -267,7 +267,7 @@
               "slo": "latency"
             },
             "value": [
-              1793405410.881,
+              1793750397.17,
               "0"
             ]
           }
@@ -285,8 +285,8 @@
               "slo": "availability"
             },
             "value": [
-              1793405410.882,
-              "0.0665335994677312"
+              1793750397.173,
+              "1.9230769230769231"
             ]
           },
           {
@@ -295,8 +295,8 @@
               "slo": "latency"
             },
             "value": [
-              1793405410.882,
-              "0"
+              1793750397.173,
+              "1.5384615384615374"
             ]
           }
         ]
@@ -306,7 +306,36 @@
       "status": "success",
       "data": {
         "resultType": "vector",
-        "result": []
+        "result": [
+          {
+            "metric": {
+              "__name__": "ALERTS",
+              "alertname": "ZulipErrorBudgetTicket",
+              "alertstate": "pending",
+              "service": "zulip",
+              "severity": "warning",
+              "slo": "availability"
+            },
+            "value": [
+              1793750397.175,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "ALERTS",
+              "alertname": "ZulipErrorBudgetTicket",
+              "alertstate": "pending",
+              "service": "zulip",
+              "severity": "warning",
+              "slo": "latency"
+            },
+            "value": [
+              1793750397.175,
+              "1"
+            ]
+          }
+        ]
       }
     },
     "sum by(status_class)(zulip_http_requests_total)": {
@@ -319,8 +348,8 @@
               "status_class": "2xx"
             },
             "value": [
-              1793405410.885,
-              "1502"
+              1793750397.177,
+              "45"
             ]
           },
           {
@@ -328,8 +357,8 @@
               "status_class": "3xx"
             },
             "value": [
-              1793405410.885,
-              "0"
+              1793750397.177,
+              "4"
             ]
           },
           {
@@ -337,8 +366,8 @@
               "status_class": "4xx"
             },
             "value": [
-              1793405410.885,
-              "0"
+              1793750397.177,
+              "2"
             ]
           },
           {
@@ -346,7 +375,7 @@
               "status_class": "5xx"
             },
             "value": [
-              1793405410.885,
+              1793750397.177,
               "1"
             ]
           }
@@ -361,8 +390,8 @@
           {
             "metric": {},
             "value": [
-              1793405410.887,
-              "0.024388522427440634"
+              1793750397.179,
+              "0.09"
             ]
           }
         ]
@@ -391,8 +420,8 @@
           "scrapeUrl": "http://cadvisor:8080/metrics",
           "globalUrl": "http://cadvisor:8080/metrics",
           "lastError": "",
-          "lastScrape": "2026-10-31T00:10:10.198082221Z",
-          "lastScrapeDuration": 0.024706167,
+          "lastScrape": "2026-11-03T23:59:45.817685923Z",
+          "lastScrapeDuration": 0.023609329,
           "health": "up",
           "scrapeInterval": "15s",
           "scrapeTimeout": "10s"
@@ -412,10 +441,10 @@
           },
           "scrapePool": "prometheus",
           "scrapeUrl": "http://localhost:9090/metrics",
-          "globalUrl": "http://7ef5d600b1ef:9090/metrics",
+          "globalUrl": "http://da4077c00d91:9090/metrics",
           "lastError": "",
-          "lastScrape": "2026-10-31T00:09:58.247905423Z",
-          "lastScrapeDuration": 0.003579417,
+          "lastScrape": "2026-11-03T23:59:47.057657392Z",
+          "lastScrapeDuration": 0.008470925,
           "health": "up",
           "scrapeInterval": "15s",
           "scrapeTimeout": "10s"
@@ -437,8 +466,8 @@
           "scrapeUrl": "http://rabbitmq:15692/metrics",
           "globalUrl": "http://rabbitmq:15692/metrics",
           "lastError": "",
-          "lastScrape": "2026-10-31T00:09:57.412963881Z",
-          "lastScrapeDuration": 0.026659833,
+          "lastScrape": "2026-11-03T23:59:45.843829285Z",
+          "lastScrapeDuration": 0.037438138,
           "health": "up",
           "scrapeInterval": "15s",
           "scrapeTimeout": "10s"
@@ -460,8 +489,8 @@
           "scrapeUrl": "http://collector:9105/metrics",
           "globalUrl": "http://collector:9105/metrics",
           "lastError": "",
-          "lastScrape": "2026-10-31T00:10:08.66904947Z",
-          "lastScrapeDuration": 0.007284542,
+          "lastScrape": "2026-11-03T23:59:51.524828161Z",
+          "lastScrapeDuration": 0.007485672,
           "health": "up",
           "scrapeInterval": "15s",
           "scrapeTimeout": "10s"

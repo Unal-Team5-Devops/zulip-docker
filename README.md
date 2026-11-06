@@ -58,6 +58,10 @@ El workflow `.github/workflows/terraform.yml` corre fmt, validate, tflint, check
 
 [`observability/`](observability/README.md) incorpora Grafana, Prometheus, alertas por burn rate, dos SLOs sobre 30 días, presupuesto de error, carga reproducible y un runbook para caída de PostgreSQL. Los manifiestos extienden el Compose original; las instrucciones, pruebas y evidencias están en ese directorio.
 
+## Despliegue en AWS (entrega 4)
+
+[`terraform/aws/`](terraform/aws) aprovisiona en AWS una VPC, una instancia EC2 con Docker, IP elástica, acceso por SSM y un rol OIDC para GitHub Actions, con el estado en S3. El workflow `.github/workflows/deploy.yml` corre en un runner self-hosted dentro de la instancia y despliega la pila completa en cada push a `main`, recargando en caliente la configuración de observabilidad. Pasos, arquitectura y brechas frente a producción en [`docs/DEPLOY-AWS.md`](docs/DEPLOY-AWS.md).
+
 ## Procedencia y licencias
 
 Zulip y docker-zulip son Apache-2.0. El Dockerfile está modelado sobre el de [zulip/docker-zulip](https://github.com/zulip/docker-zulip).

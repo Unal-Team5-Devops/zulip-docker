@@ -1,0 +1,56 @@
+name: Deploy
+
+# Despliegue continuo hacia el entorno AWS. Corre en el runner self-hosted que
+# vive dentro de la instancia EC2: GitHub nunca se conecta a la máquina; es el
+# runner el que sale a pedir trabajos, así que no hay puertos ni llaves SSH
+# expuestos para el pipeline.
+# Solo se dispara con push a main (después de un PR revisado) o a mano: los PR
+# de forks nunca ejecutan código en el runner self-hosted.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docker-compose.yml"
+      - ".env.example"
+      - "observability/**"
+      - "deploy/**"
+      - "scripts/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+# Un despliegue a la vez; uno nuevo espera a que termine el anterior.
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, aws]
+    timeout-minutes: 30
+    environment:
+      name: aws
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Login a GHCR (token efímero del job)
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Desplegar y verificar
+        id: deploy
+        run: ./deploy/deploy.sh
+
+      - name: Estado si algo falla
+        if: failure()
+        working-directory: /opt/zulip
+        run: |
+          ./observability/scripts/compose.sh ps
+          ./observability/scripts/compose.sh logs --tail 80 gateway zulip prometheus
+
+      - name: Logout de GHCR
+        if: always()
+        run: docker logout ghcr.io
