@@ -71,9 +71,9 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           set +e
           if [[ "$ACTION" == load ]]; then
-            "$script" load "$LOAD_SECONDS" "$LOAD_RPS" 2>&1 | tee /tmp/gameday-output.txt
+            bash "$script" load "$LOAD_SECONDS" "$LOAD_RPS" 2>&1 | tee /tmp/gameday-output.txt
           else
-            "$script" "$ACTION" 2>&1 | tee /tmp/gameday-output.txt
+            bash "$script" "$ACTION" 2>&1 | tee /tmp/gameday-output.txt
           fi
           code=${PIPESTATUS[0]}
           set -e
