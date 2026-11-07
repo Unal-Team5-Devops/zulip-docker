@@ -148,6 +148,19 @@ groups:
           summary: "Más del 20% de las peticiones a Zulip devuelve 5xx"
           runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
           description: "Consultar el dashboard zulip-sre, comprobar dependencias y seguir el runbook. Es una alerta de síntoma: no espera a que el presupuesto se consuma."
+      # Cierra la brecha del pre-mortem (escenario 2): una degradación de latencia
+      # corta no dispara ninguna alerta de burn rate. Alerta de síntoma, igual que
+      # ZulipHighErrorRatio pero sobre el SLI de latencia.
+      - alert: ZulipHighLatency
+        expr: zulip:sli_error_ratio:5m{slo="latency"} > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          service: zulip
+        annotations:
+          summary: "Más del 20% de las peticiones a Zulip tarda más de 500 ms"
+          runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
+          description: "Revisar en el dashboard zulip-sre tráfico, saturación (CPU por contenedor) y el log interno de Zulip (uWSGI) antes de actuar."
       - alert: ZulipTelemetryMissing
         expr: absent(up{job="zulip"}) or (up{job="zulip"} == 0)
         for: 2m
