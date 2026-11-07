@@ -1,3 +1,4 @@
+# Reglas de grabación y alertas de los SLO de Zulip. Política y runbook: observability/SRE.md y RUNBOOK.md.
 groups:
   - name: zulip-slo
     interval: 15s
