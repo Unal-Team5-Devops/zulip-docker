@@ -75,3 +75,27 @@ tests:
         exp_samples:
           - labels: '{}'
             value: 0
+  # Solo latencia: todas las respuestas son 2xx pero el 80% tarda más de 500 ms.
+  - name: latency-only-degradation
+    interval: 15s
+    input_series:
+      - series: 'zulip_http_requests_total{route="api",status_class="2xx"}'
+        values: '0+75x80'
+      - series: 'zulip_http_request_duration_seconds_count{route="api"}'
+        values: '0+75x80'
+      - series: 'zulip_http_request_duration_seconds_bucket{route="api",le="0.5"}'
+        values: '0+15x80'
+    alert_rule_test:
+      - alertname: ZulipHighLatency
+        eval_time: 15m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              service: zulip
+              slo: latency
+            exp_annotations:
+              summary: "Más del 20% de las peticiones a Zulip tarda más de 500 ms"
+              runbook_url: "https://github.com/Unal-Team5-Devops/zulip-docker/blob/main/observability/RUNBOOK.md"
+              description: "Revisar en el dashboard zulip-sre tráfico, saturación (CPU por contenedor) y el log interno de Zulip (uWSGI) antes de actuar."
+      - alertname: ZulipHighErrorRatio
+        eval_time: 15m
